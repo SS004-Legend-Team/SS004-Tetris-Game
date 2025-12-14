@@ -157,7 +157,7 @@ void removeLine() {
         for (int j = 0; j < WIDTH; j++) {
             if (board[i][j] == 0) {
                 full = false;
-                break;
+                break2;
             }
         }
 
