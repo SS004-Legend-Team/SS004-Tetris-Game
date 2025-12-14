@@ -149,3 +149,30 @@ int main() {
   }
   return 0;
 }
+
+void removeLine() {
+    for (int i = HEIGHT - 1; i >= 0; i--) {
+        bool full = true;
+
+        for (int j = 0; j < WIDTH; j++) {
+            if (board[i][j] == 0) {
+                full = false;
+                break;
+            }
+        }
+
+        if (full) {
+            for (int r = i; r > 0; r--) {
+                for (int c = 0; c < WIDTH; c++) {
+                    board[r][c] = board[r - 1][c];
+                }
+            }
+
+            for (int c = 0; c < WIDTH; c++) {
+                board[0][c] = 0;
+            }
+
+            i++;
+        }
+    }
+}
