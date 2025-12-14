@@ -172,7 +172,7 @@ void removeLine() {
                 board[0][c] = 0;
             }
 
-            i++;
+            i+;
         }
     }
 }
