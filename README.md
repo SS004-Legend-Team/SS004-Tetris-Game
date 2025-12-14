@@ -1,261 +1,286 @@
 # 🎮 SS004 - Tetris Game
 
-## 📖 Giới thiệu
+Dự án game Tetris được phát triển bằng C++ với giao diện console, hỗ trợ đa nền tảng (macOS, Linux, Windows).
 
-Chào mừng bạn đến với **Tetris** - trò chơi giải đố kinh điển đã chinh phục hàng triệu người chơi trên toàn thế giới! Tetris không chỉ là một trò chơi đơn giản, mà còn là một thử thách trí tuệ đầy thú vị, giúp bạn rèn luyện khả năng phản xạ, tư duy chiến lược và sự kiên nhẫn.
+## 📋 Mục lục
 
-### 🎯 Tetris là gì?
+- [Giới thiệu](#giới-thiệu)
+- [Tính năng](#tính-năng)
+- [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
+- [Cài đặt và Biên dịch](#cài-đặt-và-biên-dịch)
+- [Cách chạy](#cách-chạy)
+- [Điều khiển](#điều-khiển)
+- [Cấu trúc dự án](#cấu-trúc-dự-án)
+- [Kiến trúc và Công nghệ](#kiến-trúc-và-công-nghệ)
+- [Tính năng đã triển khai](#tính-năng-đã-triển-khai)
+- [Tính năng đang phát triển](#tính-năng-đang-phát-triển)
+- [Troubleshooting](#troubleshooting)
+- [Đóng góp](#đóng-góp)
+- [Tài liệu tham khảo](#tài-liệu-tham-khảo)
 
-Tetris được phát minh bởi nhà khoa học máy tính người Nga Alexey Pajitnov vào năm 1984. Tên gọi "Tetris" xuất phát từ tiếng Hy Lạp "tetra" (nghĩa là bốn) và "tennis" (môn thể thao yêu thích của Pajitnov). Trò chơi đã trở thành một trong những tựa game thành công nhất mọi thời đại, với hơn 500 triệu bản được bán ra trên toàn thế giới.
+## 🎯 Giới thiệu
 
-### ✨ Tại sao nên chơi Tetris?
+Đây là một phiên bản Tetris cổ điển được triển khai bằng C++ thuần, chạy trên terminal/console. Game sử dụng các thư viện POSIX để xử lý input không đồng bộ và tương thích với nhiều hệ điều hành.
 
-- **Rèn luyện trí não**: Tetris giúp cải thiện khả năng tư duy không gian, phản xạ nhanh và kỹ năng giải quyết vấn đề
-- **Giải trí lành mạnh**: Một cách tuyệt vời để thư giãn sau những giờ làm việc căng thẳng
-- **Thử thách bản thân**: Cố gắng đạt điểm cao và phá vỡ kỷ lục của chính mình
-- **Dễ học, khó giỏi**: Bất kỳ ai cũng có thể chơi, nhưng để trở thành cao thủ cần rất nhiều luyện tập
+> 📖 Để biết thêm về cách chơi và chiến lược, xem file [INTRODUCE.md](./INTRODUCE.md)
+
+## ✨ Tính năng
+
+### Đã triển khai
+- ✅ 7 loại khối Tetrominoes (I, O, T, S, Z, J, L)
+- ✅ Di chuyển khối trái/phải
+- ✅ Khối tự động rơi xuống
+- ✅ Kiểm tra va chạm và biên
+- ✅ Vẽ board game với khung viền
+- ✅ Hỗ trợ đa nền tảng (macOS, Linux)
+- ✅ Input không đồng bộ (non-blocking input)
+
+### Đang phát triển
+- 🔄 Xóa hàng khi đầy (hiện tại đang TODO)
+- 🔄 Xoay khối
+- 🔄 Hệ thống điểm số
+- 🔄 Cấp độ và tăng tốc độ
+- 🔄 Game Over detection
+- 🔄 Hiển thị khối tiếp theo (Next Piece)
+- 🔄 Lưu điểm cao nhất
+
+## 💻 Yêu cầu hệ thống
+
+### Hệ điều hành
+- macOS 10.12 trở lên
+- Linux (hầu hết các distribution)
+- Windows (cần chỉnh sửa code để sử dụng `conio.h` hoặc thư viện tương đương)
+
+### Công cụ phát triển
+- **Compiler**: GCC 4.8+ hoặc Clang 3.3+ (hỗ trợ C++11)
+- **Make** (tùy chọn, để sử dụng Makefile)
+
+## 🔧 Cài đặt và Biên dịch
+
+### Cách 1: Biên dịch trực tiếp
+
+```bash
+# Di chuyển vào thư mục dự án
+cd SS004-Tetris-Game
+
+# Biên dịch
+g++ -o tetris main.cpp -std=c++11
+
+# Hoặc với Clang
+clang++ -o tetris main.cpp -std=c++11
+```
+
+### Cách 2: Sử dụng Makefile (nếu có)
+
+```bash
+make
+```
+
+### Cách 3: Biên dịch với các tùy chọn tối ưu
+
+```bash
+g++ -o tetris main.cpp -std=c++11 -O2 -Wall
+```
+
+**Giải thích các flag:**
+- `-std=c++11`: Sử dụng chuẩn C++11
+- `-O2`: Tối ưu hóa code
+- `-Wall`: Hiển thị tất cả cảnh báo
+
+## 🚀 Cách chạy
+
+Sau khi biên dịch thành công, chạy game bằng lệnh:
+
+```bash
+./tetris
+```
+
+**Lưu ý:** Game cần chạy trong terminal/console để hoạt động đúng. Không chạy trong IDE terminal nếu IDE không hỗ trợ input không đồng bộ.
+
+## 🎮 Điều khiển
+
+| Phím | Hành động |
+|------|-----------|
+| `a` | Di chuyển khối sang trái |
+| `d` | Di chuyển khối sang phải |
+| `s` | Rơi nhanh (hard drop) |
+| `q` | Thoát game |
+
+> ⚠️ **Lưu ý**: Hiện tại chưa có tính năng xoay khối. Tính năng này đang được phát triển.
+
+## 📁 Cấu trúc dự án
+
+```
+SS004-Tetris-Game/
+├── main.cpp              # File source code chính
+├── main-window.cpp       # File source code cho phiên bản GUI (nếu có)
+├── README.md            # File này - hướng dẫn kỹ thuật
+├── INTRODUCE.md         # Hướng dẫn chơi game và chiến lược
+└── tetris               # File executable (sau khi biên dịch)
+```
+
+## 🏗️ Kiến trúc và Công nghệ
+
+### Cấu trúc code
+
+#### 1. **Biến toàn cục**
+```cpp
+char board[H][W]     // Board game 20x15
+int x, y             // Vị trí hiện tại của khối
+int b                // Chỉ số khối hiện tại
+char blocks[][4][4]  // Mảng chứa các khối Tetrominoes
+```
+
+#### 2. **Hàm chính**
+
+- `kbhit()`: Kiểm tra xem có phím được nhấn không (non-blocking)
+- `getch()`: Lấy ký tự từ bàn phím (không cần Enter)
+- `canMove(dx, dy)`: Kiểm tra khối có thể di chuyển không
+- `block2Board()`: Vẽ khối lên board
+- `boardDelBlock()`: Xóa khối khỏi board
+- `initBoard()`: Khởi tạo board với khung viền
+- `draw()`: Vẽ board ra màn hình
+- `removeLine()`: Xóa hàng đầy (đang TODO)
+
+#### 3. **Cross-platform Support**
+
+Code sử dụng các thư viện POSIX để đảm bảo tương thích:
+- `<termios.h>`: Điều khiển terminal
+- `<unistd.h>`: POSIX system calls
+- `<fcntl.h>`: File control
+
+### Các khối Tetrominoes
+
+Game hỗ trợ 7 loại khối chuẩn của Tetris:
+
+1. **I-Block**: Khối thẳng (4 ô)
+2. **O-Block**: Khối vuông (2x2)
+3. **T-Block**: Khối chữ T
+4. **S-Block**: Khối chữ S
+5. **Z-Block**: Khối chữ Z
+6. **J-Block**: Khối chữ J
+7. **L-Block**: Khối chữ L
+
+## 📝 Tính năng đã triển khai
+
+### ✅ Hoàn thành
+
+1. **Hệ thống Board**
+   - Board 20x15 với khung viền
+   - Vẽ và cập nhật board real-time
+
+2. **Hệ thống Khối**
+   - 7 loại khối Tetrominoes
+   - Khối tự động rơi xuống
+   - Random khối mới
+
+3. **Di chuyển**
+   - Di chuyển trái/phải
+   - Kiểm tra va chạm với biên và khối khác
+   - Hard drop (rơi nhanh)
+
+4. **Input System**
+   - Non-blocking keyboard input
+   - Cross-platform support (macOS/Linux)
+
+5. **Rendering**
+   - Clear screen và vẽ lại board
+   - Hiển thị khối đang rơi
+
+## 🔨 Tính năng đang phát triển
+
+### 🔄 Cần hoàn thiện
+
+1. **Xóa hàng** (`removeLine()`)
+   - Phát hiện hàng đầy
+   - Xóa hàng và rơi các khối phía trên xuống
+   - Animation khi xóa hàng
+
+2. **Xoay khối**
+   - Implement rotation logic
+   - Kiểm tra va chạm khi xoay
+   - Wall kick (nếu cần)
+
+3. **Hệ thống điểm số**
+   - Tính điểm khi xóa hàng
+   - Hiển thị điểm trên màn hình
+   - Lưu điểm cao nhất
+
+4. **Game Over**
+   - Phát hiện khi board đầy
+   - Hiển thị màn hình Game Over
+   - Option chơi lại
+
+5. **Cải thiện UI**
+   - Hiển thị Next Piece
+   - Hiển thị điểm số, cấp độ
+   - Hiển thị số hàng đã xóa
+
+## 🐛 Troubleshooting
+
+### Lỗi: "conio.h: No such file or directory"
+**Giải pháp**: Code đã được cập nhật để không sử dụng `conio.h`. Nếu vẫn gặp lỗi, đảm bảo bạn đang sử dụng phiên bản mới nhất của `main.cpp`.
+
+### Game không phản hồi khi nhấn phím
+**Nguyên nhân**: Terminal không hỗ trợ non-blocking input.
+**Giải pháp**: 
+- Chạy game trong terminal thật (Terminal.app trên macOS, Terminal trên Linux)
+- Không chạy trong IDE terminal
+
+### Màn hình không clear khi vẽ
+**Giải pháp**: Đảm bảo terminal hỗ trợ ANSI escape codes hoặc lệnh `clear`.
+
+### Compile error trên Windows
+**Giải pháp**: 
+- Sử dụng MinGW hoặc MSVC với thư viện tương đương
+- Hoặc sử dụng WSL (Windows Subsystem for Linux)
+
+## 🤝 Đóng góp
+
+Mọi đóng góp đều được chào đón! Để đóng góp:
+
+1. Fork dự án
+2. Tạo branch mới (`git checkout -b feature/AmazingFeature`)
+3. Commit thay đổi (`git commit -m 'Add some AmazingFeature'`)
+4. Push lên branch (`git push origin feature/AmazingFeature`)
+5. Mở Pull Request
+
+### Các tính năng cần đóng góp
+
+- [ ] Hoàn thiện hàm `removeLine()`
+- [ ] Cải thiện UI/UX (đổi giao diện viền và khối)
+- [ ] Tính năng xoay khối
+- [ ] Thêm hệ thống điểm số
+- [ ] Thêm Game Over screen
+- [ ] Thêm âm thanh
+- [ ] Thêm màu sắc cho các khối
+- [ ] Tối ưu hóa performance
+
+## 📚 Tài liệu tham khảo
+
+- [Tetris Guideline](http://tetris.wiki/Tetris_Guideline) - Tiêu chuẩn chính thức của Tetris
+- [C++ Reference](https://en.cppreference.com/) - Tài liệu C++
+- [POSIX Terminal Interface](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/termios.h.html)
+
+## 📄 License
+
+Dự án này được phát triển cho mục đích giáo dục.
+
+## 👥 Tác giả
+
+**SS004 Legend Team**
+
+- Phiên bản: SS004
+- Năm: 2025
 
 ---
 
-## 🎲 Cách chơi cơ bản
+## 📖 Tài liệu bổ sung
 
-### Mục tiêu của trò chơi
-
-Mục tiêu của Tetris rất đơn giản: **Sắp xếp các khối gạch (tetrominoes) rơi xuống để tạo thành các hàng ngang hoàn chỉnh**. Khi một hàng được lấp đầy hoàn toàn, nó sẽ biến mất và bạn sẽ nhận được điểm. Càng xóa được nhiều hàng cùng lúc, điểm số càng cao!
-
-### 🧩 Các khối gạch (Tetrominoes)
-
-Trong Tetris, có **7 loại khối gạch** khác nhau, mỗi khối được tạo thành từ 4 ô vuông:
-
-1. **I-Block** (khối thẳng): Một đường thẳng dài 4 ô
-   - Màu: Thường là màu xanh dương hoặc cyan
-   - Đặc điểm: Khối dài nhất, rất hữu ích để xóa nhiều hàng cùng lúc
-
-2. **O-Block** (khối vuông): Một hình vuông 2x2
-   - Màu: Thường là màu vàng
-   - Đặc điểm: Không thể xoay, nhưng rất ổn định
-
-3. **T-Block** (khối chữ T): Hình chữ T
-   - Màu: Thường là màu tím
-   - Đặc điểm: Linh hoạt, có thể xoay theo 4 hướng
-
-4. **S-Block** (khối chữ S): Hình chữ S
-   - Màu: Thường là màu xanh lá
-   - Đặc điểm: Có thể xoay, tạo thành hình chữ Z khi xoay
-
-5. **Z-Block** (khối chữ Z): Hình chữ Z
-   - Màu: Thường là màu đỏ
-   - Đặc điểm: Đối xứng với S-Block
-
-6. **J-Block** (khối chữ J): Hình chữ J
-   - Màu: Thường là màu xanh dương đậm
-   - Đặc điểm: Có thể xoay theo 4 hướng
-
-7. **L-Block** (khối chữ L): Hình chữ L
-   - Màu: Thường là màu cam
-   - Đặc điểm: Đối xứng với J-Block
-
-### 🎮 Điều khiển cơ bản
-
-Trước khi bắt đầu chơi, hãy làm quen với các phím điều khiển:
-
-- **⬅️ Di chuyển trái**: Nhấn phím mũi tên trái hoặc phím A để di chuyển khối sang trái
-- **➡️ Di chuyển phải**: Nhấn phím mũi tên phải hoặc phím D để di chuyển khối sang phải
-- **⬇️ Rơi nhanh**: Nhấn phím mũi tên xuống hoặc phím S để khối rơi nhanh hơn
-- **🔄 Xoay khối**: Nhấn phím mũi tên lên hoặc phím W để xoay khối theo chiều kim đồng hồ
-- **⏸️ Tạm dừng**: Nhấn phím P hoặc Space để tạm dừng trò chơi
-- **⬇️⬇️ Thả rơi**: Nhấn phím Space để thả khối rơi thẳng xuống đáy ngay lập tức
-
-> 💡 **Mẹo**: Hãy dành thời gian làm quen với các phím điều khiển trước khi bắt đầu chơi nghiêm túc!
+Để biết thêm về:
+- **Cách chơi và chiến lược**: Xem [INTRODUCE.md](./INTRODUCE.md)
+- **Cấu trúc code**: Xem comments trong `main.cpp`
 
 ---
 
-## 🎯 Cơ chế chơi chi tiết
-
-### 1. Khởi động trò chơi
-
-Khi bắt đầu một ván chơi mới:
-- Màn hình sẽ hiển thị một lưới trống (thường là 10 cột x 20 hàng)
-- Khối gạch đầu tiên sẽ xuất hiện ở phía trên cùng
-- Khối sẽ bắt đầu rơi xuống từ từ
-- Ở góc màn hình, bạn sẽ thấy khối tiếp theo sẽ xuất hiện (Next Piece)
-
-### 2. Di chuyển và xoay khối
-
-Trong khi khối đang rơi, bạn có thể:
-- **Di chuyển ngang**: Điều chỉnh vị trí khối để đặt vào vị trí mong muốn
-- **Xoay khối**: Thay đổi hướng của khối để phù hợp với không gian còn lại
-- **Rơi nhanh**: Tăng tốc độ rơi để tiết kiệm thời gian
-
-### 3. Xóa hàng và ghi điểm
-
-Khi một hàng ngang được lấp đầy hoàn toàn (không có khoảng trống nào), hàng đó sẽ:
-- **Biến mất** khỏi màn hình
-- **Các khối phía trên rơi xuống** để lấp đầy khoảng trống
-- **Bạn nhận được điểm** tương ứng với số hàng đã xóa
-
-### 4. Tăng tốc độ
-
-Khi bạn xóa được nhiều hàng, trò chơi sẽ:
-- **Tăng tốc độ rơi** của các khối
-- **Tăng độ khó** để thử thách bạn
-- **Tăng điểm số** cho mỗi hàng được xóa
-
-### 5. Kết thúc trò chơi
-
-Trò chơi sẽ kết thúc khi:
-- **Các khối chồng lên đến đỉnh màn hình** và không còn chỗ cho khối mới
-- Bạn không thể di chuyển hoặc xoay khối hiện tại
-- Màn hình hiển thị "Game Over"
-
----
-
-## 📊 Hệ thống điểm số
-
-### Cách tính điểm
-
-Điểm số được tính dựa trên số hàng bạn xóa trong một lần:
-
-- **1 hàng (Single)**: 100 điểm × (Cấp độ + 1)
-- **2 hàng (Double)**: 300 điểm × (Cấp độ + 1)
-- **3 hàng (Triple)**: 500 điểm × (Cấp độ + 1)
-- **4 hàng (Tetris)**: 800 điểm × (Cấp độ + 1)
-
-### Cấp độ (Level)
-
-- Bắt đầu từ **Cấp độ 1**
-- Mỗi khi xóa được **10 hàng**, bạn sẽ lên một cấp
-- Cấp độ càng cao, khối rơi càng nhanh và điểm số càng lớn
-
-### Kỷ lục cá nhân
-
-Hãy cố gắng phá vỡ kỷ lục của chính mình! Theo dõi:
-- **Điểm số cao nhất** bạn đạt được
-- **Cấp độ cao nhất** bạn đạt được
-- **Số hàng đã xóa** trong một ván chơi
-
----
-
-## 🎯 Chiến lược và mẹo chơi
-
-### 1. Luôn để một cột trống
-
-Một trong những chiến lược quan trọng nhất là **luôn để một hoặc hai cột ở giữa hoặc bên cạnh trống**. Điều này cho phép bạn sử dụng khối I (khối thẳng) để xóa nhiều hàng cùng lúc và đạt được Tetris (4 hàng).
-
-### 2. Ưu tiên xóa hàng ở dưới
-
-Hãy cố gắng **xóa các hàng ở phía dưới trước**. Điều này giúp:
-- Giữ cho màn hình gọn gàng
-- Tạo không gian cho các khối tiếp theo
-- Tránh tình trạng các khối bị kẹt ở trên
-
-### 3. Sử dụng "Next Piece" một cách thông minh
-
-Luôn **quan sát khối tiếp theo** (Next Piece) để:
-- Lên kế hoạch trước cho vị trí đặt khối hiện tại
-- Chuẩn bị không gian cho khối tiếp theo
-- Tránh tạo ra các khoảng trống khó lấp đầy
-
-### 4. Xoay khối trước khi đặt
-
-Thay vì di chuyển khối đến vị trí rồi mới xoay, hãy:
-- **Xoay khối trước** khi nó rơi xuống quá thấp
-- **Lên kế hoạch** hướng xoay từ sớm
-- **Thực hành** các cách xoay khác nhau để quen tay
-
-### 5. Không vội vàng
-
-Mặc dù tốc độ tăng dần, nhưng đừng vội vàng:
-- **Dành thời gian suy nghĩ** trước khi đặt khối
-- **Kiểm tra** xem khối có thể xoay được không trước khi đặt
-- **Giữ bình tĩnh** khi màn hình đầy lên
-
-### 6. Tận dụng T-Spin
-
-T-Spin là một kỹ thuật nâng cao:
-- Sử dụng khối T để xoay vào một góc nhỏ
-- Cho điểm số cao hơn và có thể xóa nhiều hàng
-- Cần luyện tập nhiều để thành thạo
-
-### 7. Quản lý không gian
-
-- **Để lại các khoảng trống** có thể lấp đầy dễ dàng
-- **Tránh tạo ra các cột quá cao** ở một bên
-- **Cân bằng** chiều cao của các cột
-
----
-
-## 🏆 Các thuật ngữ thường dùng
-
-- **Tetris**: Xóa 4 hàng cùng lúc (điểm cao nhất)
-- **T-Spin**: Kỹ thuật xoay khối T vào góc để tạo điểm cao
-- **Combo**: Xóa nhiều hàng liên tiếp trong thời gian ngắn
-- **Lock**: Khối được đặt cố định vào vị trí
-- **Ghost Piece**: Hình bóng của khối hiển thị vị trí sẽ rơi xuống
-- **Hold**: Giữ khối hiện tại để sử dụng sau
-- **Next**: Khối tiếp theo sẽ xuất hiện
-
----
-
-## 🎮 Chế độ chơi (nếu có)
-
-### Chế độ Classic
-- Chế độ chơi truyền thống
-- Tốc độ tăng dần theo cấp độ
-- Mục tiêu: Đạt điểm cao nhất có thể
-
-### Chế độ Marathon
-- Chơi đến khi Game Over
-- Không giới hạn thời gian
-- Thử thách độ bền của bạn
-
-### Chế độ Sprint
-- Xóa 40 hàng trong thời gian ngắn nhất
-- Thử thách tốc độ và kỹ năng
-- Hoàn hảo cho người chơi muốn luyện tập
-
----
-
-## 💡 Câu hỏi thường gặp (FAQ)
-
-### Q: Làm thế nào để đạt điểm cao?
-**A**: Hãy cố gắng xóa 4 hàng cùng lúc (Tetris) thay vì xóa từng hàng một. Điều này cho điểm số cao hơn nhiều lần.
-
-### Q: Tại sao khối rơi quá nhanh?
-**A**: Tốc độ tăng dần theo cấp độ. Khi bạn xóa được nhiều hàng, bạn sẽ lên cấp và khối sẽ rơi nhanh hơn. Đây là một phần của thử thách!
-
-### Q: Có thể xoay khối khi nó đã chạm đáy không?
-**A**: Phụ thuộc vào phiên bản game. Trong hầu hết các phiên bản hiện đại, bạn có thể xoay khối ngay cả khi nó đã chạm đáy, miễn là có không gian.
-
-### Q: Làm sao để cải thiện kỹ năng?
-**A**: Thực hành thường xuyên! Bắt đầu với tốc độ chậm và từ từ tăng tốc. Học các kỹ thuật như T-Spin và quản lý không gian.
-
-### Q: Có thể chơi lại sau khi Game Over không?
-**A**: Có! Bạn có thể bắt đầu một ván chơi mới bất cứ lúc nào. Hãy cố gắng phá vỡ kỷ lục của chính mình!
-
----
-
-## 🎉 Kết luận
-
-Tetris là một trò chơi đơn giản nhưng đầy thử thách, phù hợp cho mọi lứa tuổi. Dù bạn là người mới bắt đầu hay đã là cao thủ, Tetris luôn có điều gì đó mới mẻ để khám phá.
-
-### Những điều cần nhớ:
-
-✅ **Thực hành thường xuyên** - Kỹ năng chỉ đến với luyện tập  
-✅ **Giữ bình tĩnh** - Đừng hoảng sợ khi màn hình đầy lên  
-✅ **Lên kế hoạch trước** - Quan sát khối tiếp theo và chuẩn bị  
-✅ **Tận hưởng** - Đây là một trò chơi, hãy vui vẻ với nó!  
-
-### Chúc bạn chơi vui vẻ! 🎮
-
-Hãy bắt đầu ngay bây giờ và cố gắng phá vỡ kỷ lục của chính mình. Ai biết được, có thể bạn sẽ trở thành cao thủ Tetris tiếp theo!
-
----
-
-**Phiên bản**: SS004  
-**Ngày cập nhật**: 2024  
-**Phát triển bởi**: SS004 Legend Team
-
----
-
-*"Tetris không chỉ là một trò chơi, mà là một nghệ thuật của sự sắp xếp và chiến lược!"*
+*"Tetris không chỉ là một trò chơi, mà là một nghệ thuật của sự sắp xếp và chiến lược!"* 🎮
