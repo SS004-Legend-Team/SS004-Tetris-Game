@@ -184,12 +184,15 @@ int removeLine() {
         if (full) {
             removed++;
 
-            for (int r = i; r > 1; r--)
-                for (int c = 1; c < W - 1; c++)
+            for (int r = i; r > 1; r--) {
+                for (int c = 1; c < W - 1; c++) {
                     board[r][c] = board[r - 1][c];
+                }
+            }
 
-            for (int c = 1; c < W - 1; c++)
+            for (int c = 1; c < W - 1; c++) {
                 board[1][c] = ' ';
+            }
 
             i++;
         }
