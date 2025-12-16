@@ -4,7 +4,15 @@
 using namespace std;
 #define H 20
 #define W 15
+#define MIN_DELAY 100
+#define BASE_DELAY 1000
+#define SPEED_STEP 40
+#define LINES_PER_LEVEL 5
 char board[H][W] = {};
+
+int level = 1;
+int totalLines = 0;
+int fallDelay = BASE_DELAY;
 
 int x, y, b;
 char blocks[][4][4] = {{{' ', 'I', ' ', ' '},
@@ -111,7 +119,18 @@ void draw() {
     for (int j = 0; j < W; j++)
       cout << board[i][j];
 }
-void removeLine();
+
+/**
+ * Xóa line
+ * @return số line đã xóa
+ */
+int removeLine();
+
+/**
+ * Cập nhật tốc độ block rơi sau khi xóa line
+ * @param linesRemoved số line đã xóa
+ */
+void updateSpeed(int linesRemoved);
 
 int main() {
   srand(time(0));
@@ -136,41 +155,65 @@ int main() {
       y++;
     else {
       block2Board();
-      removeLine();
+      const int linesRemoved = removeLine();
+      updateSpeed(linesRemoved);
       x = 5;
       y = 0;
       b = rand() % 7;
     }
     block2Board();
     draw();
-    _sleep(500);
+    _sleep(fallDelay);
   }
   return 0;
 }
 
-void removeLine() {
-    for (int i = H - 1; i >= 0; i--) {
+int removeLine() {
+    int removed = 0;
+
+    for (int i = H - 2; i > 0; i--) {
         bool full = true;
 
-        for (int j = 0; j < W; j++) {
-            if (board[i][j] == 0) {
+        for (int j = 1; j < W - 1; j++) {
+            if (board[i][j] == ' ') {
                 full = false;
                 break;
             }
         }
 
         if (full) {
-            for (int r = i; r > 0; r--) {
-                for (int c = 0; c < W; c++) {
-                    board[r][c] = board[r - 1][c];
-                }
-            }
+            removed++;
 
-            for (int c = 0; c < W; c++) {
-                board[0][c] = 0;
-            }
+            for (int r = i; r > 1; r--)
+                for (int c = 1; c < W - 1; c++)
+                    board[r][c] = board[r - 1][c];
+
+            for (int c = 1; c < W - 1; c++)
+                board[1][c] = ' ';
 
             i++;
         }
+    }
+
+    return removed;
+}
+
+void updateSpeed(int linesRemoved) {
+    // Cộng dồn tổng số dòng đã xóa từ đầu game
+    totalLines += linesRemoved;
+
+    // Tính level hiện tại
+    // Ví dụ:
+    // 0–4 dòng  -> level 1
+    // 5–9 dòng  -> level 2
+    // 10–14 dòng -> level 3
+    level = totalLines / LINES_PER_LEVEL + 1;
+
+    // Giảm delay để tăng tốc
+    fallDelay = BASE_DELAY - (level - 1) * SPEED_STEP;
+
+    // Giới hạn tốc độ tối đa
+    if (fallDelay < MIN_DELAY) {
+        fallDelay = MIN_DELAY;
     }
 }
