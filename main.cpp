@@ -111,9 +111,7 @@ void draw() {
     for (int j = 0; j < W; j++)
       cout << board[i][j];
 }
-void removeLine() {
-  // TODO: Implement line removal logic
-}
+void removeLine();
 
 int main() {
   srand(time(0));
@@ -151,10 +149,10 @@ int main() {
 }
 
 void removeLine() {
-    for (int i = HEIGHT - 1; i >= 0; i--) {
+    for (int i = H - 1; i >= 0; i--) {
         bool full = true;
 
-        for (int j = 0; j < WIDTH; j++) {
+        for (int j = 0; j < W; j++) {
             if (board[i][j] == 0) {
                 full = false;
                 break;
@@ -163,12 +161,12 @@ void removeLine() {
 
         if (full) {
             for (int r = i; r > 0; r--) {
-                for (int c = 0; c < WIDTH; c++) {
+                for (int c = 0; c < W; c++) {
                     board[r][c] = board[r - 1][c];
                 }
             }
 
-            for (int c = 0; c < WIDTH; c++) {
+            for (int c = 0; c < W; c++) {
                 board[0][c] = 0;
             }
 
