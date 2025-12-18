@@ -110,11 +110,9 @@ void boardDelBlock() {
 void initBoard() {
   for (int i = 0; i < H; i++)
     for (int j = 0; j < W; j++)
-      if (i == 0 || i == H - 1 || j == 0 || j == W - 1)
-        board[i][j] = '#';
-      else
-        board[i][j] = ' ';
+      board[i][j] = ' ';
 }
+
 void draw() {
   system("cls");
 
