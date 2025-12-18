@@ -280,3 +280,31 @@ int main() {
   }
   return 0;
 }
+bool canRotate(char newBlock[4][4]) {
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            if (newBlock[i][j] != ' ') {
+                int xt = x + j;
+                int yt = y + i;
+
+                if (xt < 1 || xt >= W - 1 || yt < 1 || yt >= H - 1)
+                    return false;
+                if (board[yt][xt] != ' ')
+                    return false;
+            }
+    return true;
+}
+
+void rotateBlock() {
+    char temp[4][4];
+
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            temp[i][j] = blocks[b][3 - j][i];
+
+    if (canRotate(temp)) {
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                blocks[b][i][j] = temp[i][j];
+    }
+}
