@@ -159,6 +159,54 @@ void draw() {
 void removeLine() {
   // TODO: Implement line removal logic
 }
+new[i][j] = old[3 - j][i]
+bool canRotate(char newBlock[4][4]) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (newBlock[i][j] != ' ') {
+                int xt = x + j;
+                int yt = y + i;
+
+                if (xt < 1 || xt >= W - 1 || yt < 1 || yt >= H - 1)
+                    return false;
+
+                if (board[yt][xt] != ' ')
+                    return false;
+            }
+        }
+    }
+    return true;
+}
+void rotateBlock() {
+    char temp[4][4];
+
+    // Xoay 90 độ
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            temp[i][j] = blocks[b][3 - j][i];
+
+    // Nếu xoay hợp lệ thì cập nhật block
+    if (canRotate(temp)) {
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                blocks[b][i][j] = temp[i][j];
+    }
+}
+if (kbhit()) {
+    char c = getch();
+
+    if (c == 'a' && canMove(-1, 0)) x--;
+    if (c == 'd' && canMove(1, 0))  x++;
+    if (c == 's' && canMove(0, 1))  y++;
+
+    if (c == 'w') {   // XOAY KHỐI
+        boardDelBlock();
+        rotateBlock();
+        block2Board();
+    }
+
+    if (c == 'q') break;
+}
 
 int main() {
   srand(time(nullptr));
