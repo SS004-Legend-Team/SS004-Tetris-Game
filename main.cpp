@@ -116,9 +116,29 @@ void initBoard() {
 void draw() {
   system("cls");
 
-  for (int i = 0; i < H; i++, cout << endl)
-    for (int j = 0; j < W; j++)
-      cout << board[i][j];
+  const int playW = W - 2;
+  const int playH = H - 1;
+
+  // Top border
+  cout << "+" << string(playW * 2 + 2, '-') << "+\n";
+
+  for (int i = 0; i < playH; i++) {
+    cout << "|+";
+    for (int j = 1; j <= W - 2; j++) {
+      if (board[i][j] == ' ')
+        cout << CELL_EMPTY;
+      else
+        cout << CELL_BLOCK;
+    }
+    cout << "+|\n";
+  }
+
+  // Bottom border
+  cout << "+" << string(playW * 2 + 2, '-') << "+\n";
+
+  cout << "Level: " << level
+       << " | Lines: " << totalLines
+       << " | Delay: " << fallDelay << "ms\n";
 }
 
 /**
