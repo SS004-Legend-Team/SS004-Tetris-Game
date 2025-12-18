@@ -160,6 +160,44 @@ void removeLine() {
   // TODO: Implement line removal logic
 }
 
+// Helper function to check if a rotated piece fits
+bool canRotate(char tempBlock[4][4]) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (tempBlock[i][j] != ' ') {
+                int xt = x + j;
+                int yt = y + i;
+                // Check boundaries
+                if (xt < 1 || xt >= W - 1 || yt >= H - 1 || yt < 0)
+                    return false;
+                // Check if space is already occupied
+                if (board[yt][xt] != ' ')
+                    return false;
+            }
+        }
+    }
+    return true;
+}
+
+void rotate() {
+    char rotated[4][4];
+    // Perform 90-degree clockwise rotation
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            rotated[j][3 - i] = blocks[b][i][j];
+        }
+    }
+
+    // Only apply rotation if the new position is valid
+    if (canRotate(rotated)) {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                blocks[b][i][j] = rotated[i][j];
+            }
+        }
+    }
+}
+
 int main() {
   srand(time(nullptr));
   x = 5;
@@ -176,6 +214,8 @@ int main() {
         x++;
       if (c == 's' && canMove(0, 1))
         y++;
+      if (c == 'w')                  
+        rotate();
       if (c == 'q')
         break;
     }
