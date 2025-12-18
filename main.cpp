@@ -8,6 +8,9 @@ using namespace std;
 #define BASE_DELAY 1000
 #define SPEED_STEP 40
 #define LINES_PER_LEVEL 5
+#define CELL_EMPTY "  "
+#define CELL_BLOCK "[]"
+
 char board[H][W] = {};
 
 int level = 1;
