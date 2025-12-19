@@ -8,6 +8,9 @@ using namespace std;
 #define BASE_DELAY 1000
 #define SPEED_STEP 40
 #define LINES_PER_LEVEL 5
+#define CELL_EMPTY "  "
+#define CELL_BLOCK "[]"
+
 char board[H][W] = {};
 
 int level = 1;
@@ -107,17 +110,35 @@ void boardDelBlock() {
 void initBoard() {
   for (int i = 0; i < H; i++)
     for (int j = 0; j < W; j++)
-      if (i == 0 || i == H - 1 || j == 0 || j == W - 1)
-        board[i][j] = '#';
-      else
-        board[i][j] = ' ';
+      board[i][j] = ' ';
 }
+
 void draw() {
   system("cls");
 
-  for (int i = 0; i < H; i++, cout << endl)
-    for (int j = 0; j < W; j++)
-      cout << board[i][j];
+  const int playW = W - 2;
+  const int playH = H - 1;
+
+  // Top border
+  cout << "+" << string(playW * 2 + 2, '-') << "+\n";
+
+  for (int i = 0; i < playH; i++) {
+    cout << "|+";
+    for (int j = 1; j <= W - 2; j++) {
+      if (board[i][j] == ' ')
+        cout << CELL_EMPTY;
+      else
+        cout << CELL_BLOCK;
+    }
+    cout << "+|\n";
+  }
+
+  // Bottom border
+  cout << "+" << string(playW * 2 + 2, '-') << "+\n";
+
+  cout << "Level: " << level
+       << " | Lines: " << totalLines
+       << " | Delay: " << fallDelay << "ms\n";
 }
 
 /**
@@ -218,5 +239,33 @@ void updateSpeed(int linesRemoved) {
     // Giới hạn tốc độ tối đa
     if (fallDelay < MIN_DELAY) {
         fallDelay = MIN_DELAY;
+    }
+}
+ bool canRotate(char newBlock[4][4]) {
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            if (newBlock[i][j] != ' ') {
+                int xt = x + j;
+                int yt = y + i;
+
+                if (xt < 1 || xt >= W - 1 || yt < 1 || yt >= H - 1)
+                    return false;
+                if (board[yt][xt] != ' ')
+                    return false;
+            }
+    return true;
+}
+
+void rotateBlock() {
+    char temp[4][4];
+
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            temp[i][j] = blocks[b][3 - j][i];
+
+    if (canRotate(temp)) {
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                blocks[b][i][j] = temp[i][j];
     }
 }
