@@ -296,16 +296,31 @@ SS004-Tetris-Game/
 
 #### H.2.1. Kiến trúc tổng quan
 
-Hệ thống được chia thành các module chính:
-
-- **Input Handler:** Xử lý input từ bàn phím
-- **Game Logic Controller:** Điều khiển logic game
-- **Render System:** Hiển thị game lên màn hình
-
-Các module này tương tác với:
-- **Blocks.h (OOP):** Quản lý các khối gạch
-- **Game Board (2D Array):** Lưu trữ trạng thái bàn chơi
-- **Console Screen:** Hiển thị output
+```
+┌─────────────────────────────────────────────────────────┐
+│                    GAME ENGINE                          │
+├─────────────────────────────────────────────────────────┤
+│                                                           │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────┐  │
+│  │  Xử lý       │    │  Điều khiển │    │  Hiển    │  │
+│  │  Input       │───▶│  Logic Game │───▶│  thị     │  │
+│  └──────────────┘    └──────────────┘    └──────────┘  │
+│         │                    │                  │        │
+│         │                    │                  │        │
+│         ▼                    ▼                  ▼        │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────┐  │
+│  │  Sự kiện     │    │  Quản lý     │    │  Xuất    │  │
+│  │  Bàn phím    │    │  Khối        │    │  Màn hình│  │
+│  └──────────────┘    └──────────────┘    └──────────┘  │
+│                                                           │
+└─────────────────────────────────────────────────────────┘
+         │                    │                  │
+         ▼                    ▼                  ▼
+┌──────────────┐    ┌──────────────┐    ┌──────────┐
+│  Blocks.h    │    │  Bàn chơi   │    │  Màn hình │
+│  (OOP)       │    │  (Mảng 2D)  │    │  Console  │
+└──────────────┘    └──────────────┘    └──────────┘
+```
 
 #### H.2.2. Mô hình hướng đối tượng
 
@@ -491,68 +506,192 @@ void boardDelBlock()  // Xóa block khỏi board (để di chuyển)
 
 ### H.5. Sơ đồ khối (Flowchart)
 
-#### H.5.1. Sơ đồ tổng quan - Game Loop
+#### H.5.1. Sơ đồ tổng quan - Vòng lặp Game
 
 ```
-START
-  ↓
-Initialize (Random seed, Create 1st block, Init board)
-  ↓
-GAME LOOP
-  ↓
-Remove block from board
-  ↓
-Check keyboard?
-  ├─ Yes → Process Input (Move/Rotate/Quit)
-  └─ No  ↓
-Can move down?
-  ├─ Yes → Move down
-  └─ No  → Block landed (Lock block, Check lines, Remove full lines, Update speed, New block)
-  ↓
-Draw block to board
-  ↓
-Render screen
-  ↓
-Sleep (fallDelay)
-  ↓
-[Quay lại GAME LOOP]
+                    ┌─────────────┐
+                    │   BẮT ĐẦU   │
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │ Khởi tạo    │
+                    │ - Random    │
+                    │ - Tạo block │
+                    │ - Khởi tạo  │
+                    │   bàn chơi  │
+                    └──────┬──────┘
+                           │
+                    ┌──────▼──────┐
+                    │ VÒNG LẶP    │◄────┐
+                    │   GAME      │     │
+                    └──────┬──────┘     │
+                           │            │
+                           ▼            │
+              ┌──────────────────────┐  │
+              │  Xóa block khỏi     │  │
+              │  bàn chơi (để di   │  │
+              │  chuyển)            │  │
+              └──────┬───────────────┘  │
+                     │                  │
+                     ▼                  │
+         ┌───────────────────────┐     │
+         │   Kiểm tra bàn phím?  │     │
+         └───┬───────────────┬───┘     │
+             │               │         │
+          Có │               │Không    │
+             │               │         │
+             ▼               ▼         │
+    ┌──────────────┐  ┌──────────────┐ │
+    │ Xử lý Input: │  │              │ │
+    │ - Di chuyển  │  │              │ │
+    │ - Xoay       │  │              │ │
+    │ - Thoát      │  │              │ │
+    └──────┬───────┘  └──────┬───────┘ │
+           │                 │         │
+           └────────┬────────┘         │
+                    │                  │
+                    ▼                  │
+         ┌───────────────────────┐     │
+         │  Có thể rơi xuống?    │     │
+         └───┬───────────────┬───┘     │
+             │               │         │
+          Có │               │Không    │
+             │               │         │
+             ▼               ▼         │
+    ┌──────────────┐  ┌──────────────┐ │
+    │  Di chuyển   │  │ Block đã     │ │
+    │  xuống       │  │ chạm đáy:   │ │
+    │              │  │ - Khóa block│ │
+    │              │  │ - Kiểm tra  │ │
+    │              │  │   dòng      │ │
+    │              │  │ - Xóa dòng  │ │
+    │              │  │   đầy       │ │
+    │              │  │ - Cập nhật  │ │
+    │              │  │   tốc độ    │ │
+    │              │  │ - Block mới │ │
+    └──────┬───────┘  └──────┬───────┘ │
+           │                 │         │
+           └────────┬────────┘         │
+                    │                  │
+                    ▼                  │
+         ┌───────────────────────┐     │
+         │  Vẽ block lên bàn    │     │
+         │  chơi                │     │
+         └──────┬────────────────┘     │
+                │                      │
+                ▼                      │
+         ┌───────────────────────┐     │
+         │  Hiển thị màn hình   │     │
+         │  (Render)            │     │
+         └──────┬────────────────┘     │
+                │                      │
+                ▼                      │
+         ┌───────────────────────┐     │
+         │  Tạm dừng             │     │
+         │  (fallDelay ms)       │     │
+         └──────┬────────────────┘     │
+                │                      │
+                └──────────────────────┘
 ```
 
-#### H.5.2. Sơ đồ xử lý xoay block (Polymorphism)
+#### H.5.2. Sơ đồ xử lý xoay block (Đa hình)
 
 ```
-User presses 'w' or 'r'
-  ↓
-rotateBlock()
-  ↓
-currentBlock exists? canRotate()?
-  ├─ No → Return
-  └─ Yes ↓
-canRotateBlock() - Check if rotation valid
-  ↓
-Valid?
-  ├─ No → Return
-  └─ Yes ↓
-POLYMORPHISM: currentBlock->rotate()
-  (Each block type has its own rotation logic)
+                    ┌─────────────┐
+                    │ Người chơi  │
+                    │ nhấn 'w'    │
+                    │ hoặc 'r'    │
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │rotateBlock()│
+                    └──────┬──────┘
+                           │
+                           ▼
+         ┌─────────────────────────────┐
+         │ currentBlock tồn tại?       │
+         │ canRotate()?                │
+         └───┬─────────────────────┬───┘
+             │                     │
+          Không│                   │Có
+             │                     │
+             ▼                     ▼
+    ┌──────────────┐      ┌──────────────┐
+    │   Thoát      │      │canRotateBlock│
+    │              │      │() - Kiểm tra │
+    │              │      │vị trí sau    │
+    │              │      │xoay hợp lệ?  │
+    └──────────────┘      └──────┬───────┘
+                                 │
+                                 ▼
+                    ┌─────────────────────┐
+                    │  Vị trí hợp lệ?     │
+                    └───┬─────────────┬───┘
+                        │             │
+                     Không│           │Có
+                        │             │
+                        ▼             ▼
+               ┌──────────────┐  ┌──────────────┐
+               │   Thoát      │  │ ĐA HÌNH:    │
+               │              │  │ currentBlock│
+               │              │  │ ->rotate()  │
+               │              │  │             │
+               │              │  │ Mỗi loại    │
+               │              │  │ block có    │
+               │              │  │ logic xoay  │
+               │              │  │ riêng       │
+               └──────────────┘  └──────────────┘
 ```
 
 #### H.5.3. Sơ đồ xóa dòng
 
 ```
-removeLine()
-  ↓
-Loop from bottom to top (i = H-2 to 1)
-  ↓
-Line i is full?
-  ├─ Yes → removed++
-  │        Shift all lines above down by 1
-  │        Clear top line
-  │        i++ (recheck same line)
-  │        ↓
-  │        [Quay lại kiểm tra Line i]
-  └─ No  ↓
-Return removed (total lines)
+                    ┌─────────────┐
+                    │removeLine() │
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │ Vòng lặp từ │
+                    │ dưới lên    │
+                    │ (i = H-2    │
+                    │  đến 1)     │
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │ Dòng i đầy? │
+                    └───┬─────┬───┘
+                        │     │
+                     Có │     │Không
+                        │     │
+                        ▼     ▼
+              ┌──────────────┐  │
+              │ removed++   │  │
+              │              │  │
+              │ Dịch chuyển  │  │
+              │ tất cả dòng  │  │
+              │ phía trên    │  │
+              │ xuống 1      │  │
+              │              │  │
+              │ Xóa dòng     │  │
+              │ trên cùng    │  │
+              │              │  │
+              │ i++ (kiểm    │  │
+              │ tra lại dòng │  │
+              │ i)           │  │
+              └──────┬───────┘  │
+                     │          │
+                     └──────┬───┘
+                            │
+                            ▼
+                    ┌─────────────┐
+                    │ Trả về số   │
+                    │ dòng đã xóa │
+                    │ (removed)   │
+                    └─────────────┘
 ```
 
 ### H.6. Sơ đồ Class (Class Diagram)
