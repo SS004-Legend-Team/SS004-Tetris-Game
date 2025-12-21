@@ -134,6 +134,31 @@ public:
     }
 };
 
+// Z-Block: có 2 trạng thái xoay
+class ZBlock : public Blocks {
+public:
+    ZBlock() {
+        shape[1][0] = 'Z';
+        shape[1][1] = 'Z';
+        shape[2][1] = 'Z';
+        shape[2][2] = 'Z';
+        rotationState = 0;
+    }
+    
+    void rotate() override {
+        char temp[4][4];
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                temp[i][j] = shape[3 - j][i];
+        
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                shape[i][j] = temp[i][j];
+        
+        rotationState = (rotationState + 1) % 2;
+    }
+};
+
 // Hàm factory để tạo block mới dựa trên type
 inline Blocks* createBlock(int type) {
     switch (type) {
@@ -141,6 +166,7 @@ inline Blocks* createBlock(int type) {
         case 1: return new OBlock();
         case 2: return new TBlock();
         case 3: return new SBlock();
+        case 4: return new ZBlock();
        
         default: return new IBlock();
     }
