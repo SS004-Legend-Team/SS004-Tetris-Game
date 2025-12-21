@@ -159,6 +159,31 @@ public:
     }
 };
 
+// J-Block: có 4 trạng thái xoay
+class JBlock : public Blocks {
+public:
+    JBlock() {
+        shape[1][0] = 'J';
+        shape[2][0] = 'J';
+        shape[2][1] = 'J';
+        shape[2][2] = 'J';
+        rotationState = 0;
+    }
+    
+    void rotate() override {
+        char temp[4][4];
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                temp[i][j] = shape[3 - j][i];
+        
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                shape[i][j] = temp[i][j];
+        
+        rotationState = (rotationState + 1) % 4;
+    }
+};
+
 // Hàm factory để tạo block mới dựa trên type
 inline Blocks* createBlock(int type) {
     switch (type) {
@@ -167,7 +192,7 @@ inline Blocks* createBlock(int type) {
         case 2: return new TBlock();
         case 3: return new SBlock();
         case 4: return new ZBlock();
-       
+        case 5: return new JBlock();
         default: return new IBlock();
     }
 }
