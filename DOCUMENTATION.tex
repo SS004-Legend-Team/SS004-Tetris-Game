@@ -1,0 +1,1216 @@
+\documentclass[a4paper,12pt]{article}
+
+% ================== PACKAGE ==================
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{geometry}
+\usepackage{array}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{fontawesome5}
+\usepackage{xcolor}     
+\usepackage{enumitem}
+\usepackage{framed}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usetikzlibrary{shapes,arrows,positioning,calc}
+
+\geometry{margin=2.5cm}
+\onehalfspacing
+
+% ================== THỤT ĐẦU DÒNG ==================
+\setlength{\parindent}{1cm}  % Thụt đầu dòng 1cm cho mỗi đoạn văn
+
+% ================== HEADER ==================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+
+\renewcommand\thesection{\Alph{section}}
+\renewcommand\thesubsection{\thesection.\arabic{subsection}}
+
+% ================== CẤU HÌNH LISTINGS ==================
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red!70!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{gray!10},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    rulecolor=\color{black!30},
+    tabsize=2,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    escapeinside={\%*}{*)}
+}
+
+% ================== BEGIN DOCUMENT ==================
+\begin{document}
+
+% ================== BÌA ==================
+\begin{titlepage}
+\centering
+
+\includegraphics[width=4cm]{Hình ảnh/2. UIT Logo.png}\\[12pt] % nếu không có logo thì comment dòng này lại
+
+\Large\textbf{ĐẠI HỌC QUỐC GIA TP. HỒ CHÍ MINH}\\[4pt]
+\Large\textbf{TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN}\\[4pt]
+\large\textbf{}\\[30pt]
+
+\LARGE\textbf{BÁO CÁO ĐỒ ÁN CUỐI KỲ}\\[6pt]
+\Large\textbf{Môn học: KỸ NĂNG NGHỀ NGHIỆP}\\[12pt]
+\LARGE\textbf{TETRIS GAME}\\[96pt]
+
+\raggedright
+\large\textbf{Nhóm thực hiện: 06}\\[4pt]
+Nguyễn Hữu Lộc \hfill MSSV: 25730038\\
+Nguyễn Thanh Lộc \hfill MSSV: 25730039\\
+Trương Anh Khoa \hfill MSSV: 25730035\\
+Nguyễn Đình Đức \hfill MSSV: 25730017\\
+Hoàng Xuân Phong \hfill MSSV: 25730052\\[8pt]
+
+\textbf{Giảng viên hướng dẫn:} ThS. Nguyễn Văn Toàn\\[4pt]
+\textbf{Lớp:} SS004.F11.CN1.CNTT\\[40pt]
+
+\begin{center}
+TP. HỒ CHÍ MINH — Tháng 11 năm 2025
+\end{center}
+
+\end{titlepage}
+
+% ================== MỤC LỤC ==================
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+
+\pagenumbering{arabic}
+
+% ================== A. LỜI MỞ ĐẦU ==================
+\section{\texorpdfstring{Lời mở đầu}{Loi mo dau}}
+
+Để hoàn thành bài tập nhóm môn Kỹ năng nghề nghiệp với đề tài “Tetris Game”, nhóm 06 đã nhận được sự hỗ trợ, quan tâm và động viên rất lớn từ Thầy Cô, gia đình và đồng nghiệp.
+
+Trước hết, chúng em xin gửi lời tri ân sâu sắc đến Ban Giám hiệu Trường Đại học Công nghệ Thông tin và Trung tâm Phát triển Công nghệ Thông tin (CITD). Nhà trường đã xây dựng một chương trình đào tạo từ xa bài bản, linh hoạt, tạo điều kiện thuận lợi nhất cho những sinh viên vừa làm vừa học như chúng em.
+
+Đặc biệt, nhóm xin cảm ơn Thạc sĩ Nguyễn Văn Toàn đã luôn tận tình hướng dẫn, giải đáp thắc mắc nhanh chóng và định hướng tư duy thực tế. Đây là nền tảng giúp nhóm hiểu rõ hơn về lộ trình hướng đến vị trí Tech Lead trong tương lai.
+
+Cuối cùng, nhóm xin cảm ơn các thành viên nhóm 06 đã làm việc nghiêm túc, chủ động và trách nhiệm dù ai cũng có công việc và thời gian hạn chế. 
+
+Chúng em xin chân thành cảm ơn!
+
+% ================== B. TÓM TẮT ==================
+\section{Tóm tắt}
+
+Đồ án này xây dựng một phiên bản hoàn chỉnh của tựa game xếp gạch (Tetris) kinh điển sử dụng ngôn ngữ lập trình C++. Dự án vận dụng các kỹ thuật lập trình hướng đối tượng (OOP) để thiết kế kiến trúc game, bao gồm các lớp quản lý khối gạch (Tetromino), bảng chơi (Board) và vòng lặp game (Game Loop). Về mặt thuật toán, đồ án tập trung giải quyết các bài toán về xử lý mảng hai chiều, kiểm tra va chạm, xóa hàng và cơ chế tính điểm. Sản phẩm cuối cùng không chỉ đảm bảo tính giải trí với giao diện trực quan, mượt mà mà còn thể hiện được kỹ năng quản lý bộ nhớ và tư duy logic thuật toán của người thực hiện.
+
+% ================== C. HỢP ĐỒNG NHÓM ==================
+\section{Hợp đồng nhóm (Group Contract)}
+
+\subsection{Thông tin chung}
+\begin{itemize}
+    \item \textbf{Tên nhóm:} Nhóm 06 - Team Legend
+    \item \textbf{Mã lớp/Học phần:} SS004.F11.CN1.CNTT
+    \item \textbf{Giảng viên hướng dẫn:} Nguyễn Văn Toàn
+    \item \textbf{Thời gian thực hiện:} Từ ngày 01/12/2025 đến ngày 28/12/2025
+\end{itemize}
+
+\subsection{Mục đích thành lập}
+Nhóm được thành lập dựa trên sự tự nguyện và thống nhất của các thành viên với mục đích:
+\begin{enumerate}
+    \item Hoàn thành xuất sắc đồ án cuối kỳ môn Kỹ Năng Nghề Nghiệp với đề tài Game Tetris.
+    \item Rèn luyện kỹ năng làm việc nhóm (teamwork), kỹ năng giải quyết vấn đề và quản lý xung đột.
+    \item Nâng cao trình độ lập trình C++, tư duy Hướng đối tượng (OOP) và sử dụng các công cụ quản lý mã nguồn.
+\end{enumerate}
+
+\subsection{Công cụ và phương thức làm việc}
+Để đảm bảo tiến độ và chất lượng code, nhóm thống nhất sử dụng các công cụ sau:
+\begin{itemize}
+    \item \textbf{Quản lý mã nguồn (Source Control):} 
+    \begin{itemize}
+        \item Sử dụng \textbf{GitHub} để lưu trữ code.
+        \item Quy tắc branch: Mỗi tính năng (feature) dev trên một branch riêng, chỉ merge vào `main` khi đã qua review.
+    \end{itemize}
+    
+    \item \textbf{Quản lý tác vụ (Task Management):}
+    \begin{itemize}
+        \item Sử dụng \textbf{GitHub Projects} (dạng Kanban Board) để chia việc, theo dõi tiến độ (To do, In Progress, Done).
+    \end{itemize}
+    
+    \item \textbf{Giao tiếp (Communication):}
+    \begin{itemize}
+        \item Sử dụng \textbf{Slack} làm kênh giao tiếp chính thức.
+        \item Các thông báo quan trọng, cập nhật daily, báo lỗi (bug report) sẽ được post lên channel tương ứng.
+        \item Họp tiến độ (Meeting): 1 lần/tuần (Offline hoặc Online qua Google Meet).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Danh sách thành viên và Phân công vai trò}
+Nhóm bao gồm 5 thành viên với các vai trò cụ thể như sau:
+
+\vspace{0.5cm}
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|l|c|p{8cm}|}
+\hline
+\textbf{STT} & \textbf{Tên} & \textbf{MSSV} & \textbf{Nhiệm vụ trong đồ án Tetris} \\ \hline
+
+1 & Nguyễn Thanh Lộc & 25730039 &
+Trưởng nhóm — điều phối chung, tổng hợp nội dung báo cáo, chuẩn hoá LaTeX, áp dụng tính đa hình cho lớp khối, hoàn thiện bản nộp cuối. \\ \hline
+
+2 & Nguyễn Hữu Lộc & 25730038 &
+Xây dựng chức năng xoá hàng khi đã hoàn thành và chịu trách nhiệm tổng hợp quá trình làm việc nhóm. \\ \hline
+
+3 & Trương Anh Khoa & 25730035 &
+Thiết kế giao diện trò chơi bố cục màn hình, trạng thái trò chơi và chịu trách nhiệm phần đánh giá hợp đồng nhóm. \\ \hline
+
+4 & Nguyễn Đình Đức & 25730017 &
+Phát triển cấu trúc chương trình và mô-đun điều khiển: vòng lặp game, tốc độ rơi, tăng dần độ khó. \\ \hline
+
+5 & Hoàng Xuân Phong & 25730052 &
+Thực hiện chức năng xoay khối khi đang rơi và chịu trách nhiệm tổng hợp các kỹ năng mà nhóm đã sử dụng để hoàn thành báo cáo. \\ \hline
+
+\end{tabular}
+\caption{Phân công nhiệm vụ chi tiết của nhóm}
+\end{table}
+
+\subsection{Chỉ tiêu đánh giá (KPI)}
+Mỗi thành viên cam kết đạt được các chỉ tiêu sau:
+\begin{enumerate}
+    \item \textbf{Tiến độ (Deadline):} Hoàn thành 100\% task được giao đúng thời hạn trên GitHub Projects. Trễ deadline quá 2 lần không có lý do chính đáng sẽ bị trừ điểm đánh giá nội bộ.
+    \item \textbf{Chất lượng Code:} Code phải tuân thủ chuẩn coding style đã thống nhất, có comment rõ ràng. Không có lỗi biên dịch (compile error) khi đẩy lên nhánh chính.
+    \item \textbf{Thái độ:} Tham gia đầy đủ các buổi họp nhóm (vắng mặt phải báo trước). Phản hồi tin nhắn trên Slack trong vòng 4 tiếng (trong giờ làm việc).
+    \item \textbf{Mục tiêu chung:} Đồ án đạt điểm tổng kết từ 8.0 trở lên. Game chạy mượt mà, không có lỗi Crash (Fatal Error).
+\end{enumerate}
+
+\subsection{Quyết định thành lập nhóm}
+Căn cứ vào yêu cầu của môn học và sự thống nhất của các thành viên, chúng tôi quyết định thành lập nhóm để thực hiện đồ án này. Hợp đồng này có hiệu lực kể từ ngày ký cho đến khi đồ án được bảo vệ thành công và có điểm số cuối cùng.
+
+\subsection{Cam kết}
+Chúng tôi, những thành viên có tên dưới đây, đã đọc, hiểu và đồng ý với tất cả các điều khoản trong bản hợp đồng này. Chúng tôi cam kết thực hiện nghiêm túc nghĩa vụ của mình để đạt được mục tiêu chung của nhóm.
+
+\vspace{1cm}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|l|c|c|}
+\hline
+\textbf{STT} & \textbf{Tên thành viên} & \textbf{MSSV} & \textbf{Chữ ký} \\ \hline
+
+
+1 & Nguyễn Thanh Lộc & 25730039 &
+\includegraphics[height=1.5cm]{Hình ảnh/25730039.jpg} \\ \hline
+
+2 & Nguyễn Hữu Lộc & 25730038 &
+\includegraphics[height=1.5cm]{Hình ảnh/25730038.jpg} \\ \hline
+
+3 & Trương Anh Khoa & 25730035 &
+\includegraphics[height=1.5cm]{Hình ảnh/25730035.jpg} \\ \hline
+
+4 & Nguyễn Đình Đức & 25730017 &
+\includegraphics[height=1.5cm]{Hình ảnh/25730017.png} \\ \hline
+
+5 & Hoàng Xuân Phong & 25730052 &
+\includegraphics[height=1.5cm]{Hình ảnh/25730052.jpg} \\ \hline
+
+\end{tabular}
+\caption{Chữ ký xác nhận của các thành viên}
+\end{table}
+
+\section{Github/Slack/Overleaf mà nhóm đã dùng}
+
+Để đảm bảo tính minh bạch và giảng viên có thể theo dõi quá trình làm việc, nhóm cung cấp các đường dẫn truy cập vào tài nguyên làm việc như sau:
+
+\subsection*{1. GitHub (Quản lý Mã nguồn \& Tiến độ)}
+Nhóm sử dụng GitHub để lưu trữ Code và tính năng GitHub Projects để chia task (Kanban).
+\begin{itemize}
+    \item \textbf{Đường dẫn Repository:} \\
+    \href{https://github.com/SS004-Legend-Team/SS004-Tetris-Game}{\texttt{https://github.com/SS004-Legend-Team/SS004-Tetris-Game}}
+    
+    \item \textbf{GitHub Project Board (Quản lý Task):} \\
+    \href{https://github.com/orgs/SS004-Legend-Team/projects/2}{\texttt{https://github.com/orgs/SS004-Legend-Team/projects/2}}
+\end{itemize}
+
+\subsection*{2. Slack (Giao tiếp \& Họp nhóm)}
+Slack là nơi trao đổi nhanh, gửi file
+\begin{itemize}
+    \item \textbf{Slack Workspace URL:} \\
+    \href{https://ss004f11cn1.slack.com/archives/C09RWCQE8DU}{\texttt{https://ss004f11cn1.slack.com/archives/C09RWCQE8DU}}
+\end{itemize}
+
+\subsection*{3. Overleaf (Soạn thảo Báo cáo)}
+Toàn bộ tài liệu báo cáo, slide thuyết trình và hợp đồng nhóm này đều được soạn thảo cộng tác trên Overleaf.
+\begin{itemize}
+    \item \textbf{Link dự án (View Only):} \\
+    \href{https://www.overleaf.com/project/69350ba6428d6b170bf29c1e}{\texttt{https://www.overleaf.com/project/69350ba6428d6b170bf29c1e}}
+\end{itemize}
+
+\section{Phần giới thiệu và hướng dẫn chơi game}
+
+Chào mừng bạn đến với \textbf{Tetris} - trò chơi giải đố kinh điển đã chinh phục hàng triệu người chơi trên toàn thế giới! Tetris không chỉ là một trò chơi đơn giản, mà còn là một thử thách trí tuệ đầy thú vị, giúp bạn rèn luyện khả năng phản xạ, tư duy chiến lược và sự kiên nhẫn.
+
+\subsection{Tetris là gì? \faBullseye}
+Tetris được phát minh bởi nhà khoa học máy tính người Nga Alexey Pajitnov vào năm 1984. Tên gọi "Tetris" xuất phát từ tiếng Hy Lạp "tetra" (nghĩa là bốn) và "tennis" (môn thể thao yêu thích của Pajitnov). Trò chơi đã trở thành một trong những tựa game thành công nhất mọi thời đại, với hơn 500 triệu bản được bán ra trên toàn thế giới.
+
+\subsection{Tại sao nên chơi Tetris? \faStar}
+\begin{itemize}
+    \item \textbf{Rèn luyện trí não}: Tetris giúp cải thiện khả năng tư duy không gian, phản xạ nhanh và kỹ năng giải quyết vấn đề.
+    \item \textbf{Giải trí lành mạnh}: Một cách tuyệt vời để thư giãn sau những giờ làm việc căng thẳng.
+    \item \textbf{Thử thách bản thân}: Cố gắng đạt điểm cao và phá vỡ kỷ lục của chính mình.
+    \item \textbf{Dễ học, khó giỏi}: Bất kỳ ai cũng có thể chơi, nhưng để trở thành cao thủ cần rất nhiều luyện tập.
+\end{itemize}
+
+% -----------------------------------------------------------------------------
+
+\subsection{Cách chơi cơ bản \faDice}
+
+\subsubsection{Mục tiêu của trò chơi}
+Mục tiêu của Tetris rất đơn giản: \textbf{Sắp xếp các khối gạch (tetrominoes) rơi xuống để tạo thành các hàng ngang hoàn chỉnh}. Khi một hàng được lấp đầy hoàn toàn, nó sẽ biến mất và bạn sẽ nhận được điểm. Càng xóa được nhiều hàng cùng lúc, điểm số càng cao!
+
+\subsubsection{Các khối gạch (Tetrominoes) \faPuzzlePiece}
+Trong Tetris, có \textbf{7 loại khối gạch} khác nhau, mỗi khối được tạo thành từ 4 ô vuông:
+
+\begin{enumerate}
+    \item \textbf{\textcolor{cyan}{I-Block} (Khối thẳng)}: Một đường thẳng dài 4 ô.
+    \begin{itemize}
+        \item Đặc điểm: Khối dài nhất, rất hữu ích để xóa nhiều hàng cùng lúc.
+    \end{itemize}
+    
+    \item \textbf{\textcolor{yellow!90!black}{O-Block} (Khối vuông)}: Một hình vuông $2 \times 2$.
+    \begin{itemize}
+        \item Đặc điểm: Không thể xoay, nhưng rất ổn định.
+    \end{itemize}
+    
+    \item \textbf{\textcolor{violet}{T-Block} (Khối chữ T)}: Hình chữ T.
+    \begin{itemize}
+        \item Đặc điểm: Linh hoạt, có thể xoay theo 4 hướng.
+    \end{itemize}
+    
+    \item \textbf{\textcolor{green!70!black}{S-Block} (Khối chữ S)}: Hình chữ S.
+    \begin{itemize}
+        \item Đặc điểm: Có thể xoay, tạo thành hình chữ Z khi xoay.
+    \end{itemize}
+    
+    \item \textbf{\textcolor{red}{Z-Block} (Khối chữ Z)}: Hình chữ Z.
+    \begin{itemize}
+        \item Đặc điểm: Đối xứng với S-Block.
+    \end{itemize}
+    
+    \item \textbf{\textcolor{blue}{J-Block} (Khối chữ J)}: Hình chữ J.
+    \begin{itemize}
+        \item Đặc điểm: Có thể xoay theo 4 hướng.
+    \end{itemize}
+    
+    \item \textbf{\textcolor{orange}{L-Block} (Khối chữ L)}: Hình chữ L.
+    \begin{itemize}
+        \item Đặc điểm: Đối xứng với J-Block.
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Điều khiển cơ bản \faGamepad}
+Trước khi bắt đầu chơi, hãy làm quen với các phím điều khiển:
+
+\begin{itemize}
+    \item \textbf{$\leftarrow$ Di chuyển trái}: Nhấn phím mũi tên trái hoặc phím A để di chuyển khối sang trái.
+    \item \textbf{$\rightarrow$ Di chuyển phải}: Nhấn phím mũi tên phải hoặc phím D để di chuyển khối sang phải.
+    \item \textbf{$\downarrow$ Rơi nhanh}: Nhấn phím mũi tên xuống hoặc phím S để khối rơi nhanh hơn.
+    \item \textbf{$\circlearrowright$ Xoay khối}: Nhấn phím mũi tên lên hoặc phím W để xoay khối theo chiều kim đồng hồ.
+    \item \textbf{\faPause\ Tạm dừng}: Nhấn phím P hoặc Space để tạm dừng trò chơi.
+    \item \textbf{$\downarrow\downarrow$ Thả rơi}: Nhấn phím Space để thả khối rơi thẳng xuống đáy ngay lập tức.
+\end{itemize}
+
+\begin{framed}
+    \noindent \textbf{\faLightbulb\ Mẹo:} Hãy dành thời gian làm quen với các phím điều khiển trước khi bắt đầu chơi nghiêm túc!
+\end{framed}
+
+% -----------------------------------------------------------------------------
+
+\subsection{Cơ chế chơi chi tiết \faBullseye}
+
+\begin{enumerate}
+    \item \textbf{Khởi động trò chơi:}
+    Khi bắt đầu một ván chơi mới, màn hình sẽ hiển thị một lưới trống (thường là 10 cột x 20 hàng). Khối gạch đầu tiên xuất hiện ở trên cùng và bắt đầu rơi xuống. Bạn có thể thấy khối tiếp theo tại ô "Next Piece".
+    
+    \item \textbf{Di chuyển và xoay khối:}
+    Trong khi khối đang rơi, bạn cần điều chỉnh vị trí ngang và xoay hướng để phù hợp với không gian bên dưới. Bạn cũng có thể tăng tốc độ rơi để tiết kiệm thời gian.
+    
+    \item \textbf{Xóa hàng và ghi điểm:}
+    Khi một hàng ngang được lấp đầy hoàn toàn, hàng đó sẽ biến mất. Các khối phía trên sẽ rơi xuống lấp đầy khoảng trống và bạn nhận được điểm.
+    
+    \item \textbf{Tăng tốc độ:}
+    Khi xóa được nhiều hàng, trò chơi sẽ tăng tốc độ rơi của các khối và tăng độ khó, đồng thời điểm thưởng cũng cao hơn.
+    
+    \item \textbf{Kết thúc trò chơi:}
+    Trò chơi kết thúc (Game Over) khi các khối chồng lên đến đỉnh màn hình và không còn chỗ cho khối mới xuất hiện.
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+
+\subsection{Hệ thống điểm số \faChartBar}
+
+\subsubsection*{Cách tính điểm}
+Điểm số được tính dựa trên số hàng bạn xóa trong một lần rơi:
+\begin{itemize}
+    \item \textbf{1 hàng (Single)}: $100 \times (\text{Cấp độ} + 1)$
+    \item \textbf{2 hàng (Double)}: $300 \times (\text{Cấp độ} + 1)$
+    \item \textbf{3 hàng (Triple)}: $500 \times (\text{Cấp độ} + 1)$
+    \item \textbf{4 hàng (Tetris)}: $800 \times (\text{Cấp độ} + 1)$
+\end{itemize}
+
+\subsubsection*{Cấp độ và Kỷ lục}
+Bạn bắt đầu từ \textbf{Cấp độ 1}. Mỗi khi xóa được \textbf{10 hàng}, bạn sẽ lên một cấp. Hãy cố gắng phá vỡ kỷ lục của chính mình về Điểm số cao nhất, Cấp độ cao nhất và Số hàng đã xóa.
+
+% -----------------------------------------------------------------------------
+
+\subsection{Chiến lược và mẹo chơi \faChessKnight}
+
+\begin{enumerate}
+    \item \textbf{Luôn để một cột trống:} Giữ một cột dọc trống (thường ở sát biên) để chờ khối I (thẳng dài) nhằm ghi điểm Tetris (xóa 4 hàng cùng lúc).
+    \item \textbf{Ưu tiên xóa hàng ở dưới:} Giúp màn hình gọn gàng và tránh bị dồn khối lên quá cao.
+    \item \textbf{Sử dụng "Next Piece":} Luôn liếc nhìn khối tiếp theo để lên kế hoạch đặt khối hiện tại sao cho phù hợp.
+    \item \textbf{Xoay khối trước khi đặt:} Đừng đợi khối rơi xuống đáy mới xoay, hãy xoay từ sớm để tránh bị kẹt.
+    \item \textbf{Tận dụng T-Spin:} Đây là kỹ thuật nâng cao, xoay khối T vào các khe hẹp để ghi điểm thưởng lớn.
+    \item \textbf{Quản lý không gian:} Cố gắng giữ bề mặt các khối bằng phẳng, tránh tạo ra các "tháp" quá cao lởm chởm.
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+
+\subsection{Các thuật ngữ thường dùng \faTrophy}
+
+\begin{description}
+    \item[Tetris:] Hành động xóa 4 hàng cùng lúc (điểm cao nhất).
+    \item[T-Spin:] Kỹ thuật xoay khối T vào góc hẹp.
+    \item[Combo:] Xóa nhiều hàng liên tiếp trong chuỗi các nước đi.
+    \item[Ghost Piece:] Hình bóng mờ của khối hiển thị vị trí nó sẽ rơi xuống.
+    \item[Hold:] Chức năng giữ khối hiện tại lại để dùng sau.
+\end{description}
+
+% -----------------------------------------------------------------------------
+
+\subsection{Câu hỏi thường gặp (FAQ) \faQuestionCircle}
+
+\noindent \textbf{Q: Làm thế nào để đạt điểm cao?} \\
+\textbf{A:} Hãy cố gắng tích các hàng và chờ khối I để xóa 4 hàng cùng lúc (Tetris). Điểm số sẽ cao hơn nhiều so với xóa lẻ tẻ.
+
+\vspace{0.5em}
+
+\noindent \textbf{Q: Tại sao khối rơi quá nhanh?} \\
+\textbf{A:} Tốc độ tăng dần theo cấp độ. Đây là cơ chế cốt lõi để tạo độ khó cho game.
+
+\vspace{0.5em}
+
+\noindent \textbf{Q: Có thể xoay khối khi nó đã chạm đáy không?} \\
+\textbf{A:} Tùy phiên bản. Hầu hết các bản hiện đại (như bản SS004 này) cho phép "Lock Delay" - một khoảng thời gian ngắn để bạn xoay hoặc trượt khối trước khi nó bị khóa cứng.
+
+\vspace{0.5em}
+
+\noindent \textbf{Q: Làm sao để cải thiện kỹ năng?} \\
+\textbf{A:} Thực hành thường xuyên! Tập trung vào việc xếp phẳng bề mặt và làm quen với tính năng "Hold".
+
+% -----------------------------------------------------------------------------
+
+\subsection{Kết luận}
+
+Tetris là một trò chơi đơn giản nhưng đầy thử thách, phù hợp cho mọi lứa tuổi. Dù bạn là người mới bắt đầu hay đã là cao thủ, Tetris luôn có điều gì đó mới mẻ để khám phá.
+
+\begin{itemize}
+    \item[\faCheck] \textbf{Thực hành thường xuyên} - Kỹ năng chỉ đến với luyện tập.
+    \item[\faCheck] \textbf{Giữ bình tĩnh} - Đừng hoảng sợ khi màn hình đầy lên.
+    \item[\faCheck] \textbf{Lên kế hoạch trước} - Quan sát khối tiếp theo.
+    \item[\faCheck] \textbf{Tận hưởng} - Hãy vui vẻ với nó!
+\end{itemize}
+
+\begin{center}
+    \vspace{0.5cm}
+    \textit{"Tetris không chỉ là một trò chơi, mà là một nghệ thuật của sự sắp xếp và chiến lược!"}
+\end{center}
+
+\section{Tài liệu kỹ thuật của trò chơi}
+
+Phần này trình bày chi tiết về kiến trúc, cấu trúc dữ liệu, các module chính và thuật toán của trò chơi Tetris được xây dựng bằng C++ với phương pháp lập trình hướng đối tượng (OOP) và tính đa hình (Polymorphism).
+
+\subsection{Tổng quan \faInfoCircle}
+
+\subsubsection{Mô tả}
+Tetris là trò chơi puzzle cổ điển, người chơi điều khiển các khối hình (tetromino) rơi xuống và sắp xếp chúng để tạo thành các dòng hoàn chỉnh. Khi một dòng được lấp đầy, nó sẽ bị xóa và người chơi được điểm. Tốc độ rơi tăng dần theo level.
+
+\subsubsection{Công nghệ sử dụng}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Ngôn ngữ}: C++
+    \item \textbf{Paradigm}: Hướng đối tượng (OOP) với tính đa hình (Polymorphism)
+    \item \textbf{Platform}: 
+    \begin{itemize}
+        \item Windows: \texttt{main.cpp} (sử dụng \texttt{conio.h}, \texttt{windows.h})
+        \item macOS/Linux: \texttt{main-macos.cpp} (sử dụng \texttt{termios.h}, \texttt{unistd.h})
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Cấu trúc file}
+\begin{lstlisting}[language=bash, caption={Cấu trúc thư mục dự án}, basicstyle=\ttfamily\footnotesize]
+SS004-Tetris-Game/
+├── blocks.h          # Định nghĩa các class Blocks và derived classes
+├── main.cpp          # Code chính cho Windows
+├── main-macos.cpp    # Code chính cho macOS/Linux
+└── TECHNICAL_DOCUMENTATION.md  # Tài liệu markdown
+\end{lstlisting}
+
+\subsection{Kiến trúc hệ thống \faSitemap}
+
+\subsubsection{Kiến trúc tổng quan}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    box/.style={rectangle, draw=black, fill=blue!20, text width=3.2cm, text centered, minimum height=1cm},
+    arrow/.style={->, >=stealth, thick}
+]
+    % Game Engine - Top row
+    \node[box] (input) at (0,0) {Xử lý Input};
+    \node[box] (logic) at (4,0) {Điều khiển Logic Game};
+    \node[box] (render) at (8,0) {Hệ thống Hiển thị};
+    
+    \draw[arrow] (input) -- (logic);
+    \draw[arrow] (logic) -- (render);
+    
+    % Subsystems - Middle row
+    \node[box, below=of input] (keyboard) {Sự kiện Bàn phím};
+    \node[box, below=of logic] (blockmgmt) {Quản lý Khối};
+    \node[box, below=of render] (display) {Xuất Màn hình};
+    
+    \draw[arrow] (input) -- (keyboard);
+    \draw[arrow] (logic) -- (blockmgmt);
+    \draw[arrow] (render) -- (display);
+    
+    % External - Bottom row
+    \node[box, below=of keyboard, fill=green!20] (blocks) {Blocks.h (OOP)};
+    \node[box, below=of blockmgmt, fill=green!20] (board) {Bàn chơi (Mảng 2D)};
+    \node[box, below=of display, fill=green!20] (console) {Màn hình Console};
+    
+    \draw[arrow] (keyboard) -- (blocks);
+    \draw[arrow] (blockmgmt) -- (board);
+    \draw[arrow] (display) -- (console);
+\end{tikzpicture}
+\caption{Kiến trúc tổng quan của hệ thống}
+\end{figure}
+
+\subsubsection{Mô hình hướng đối tượng}
+Hệ thống sử dụng \textbf{Design Pattern: Factory Pattern} và \textbf{Polymorphism}:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Base Class}: \texttt{Blocks} (abstract class)
+    \item \textbf{Derived Classes}: \texttt{IBlock}, \texttt{OBlock}, \texttt{TBlock}, \texttt{SBlock}, \texttt{ZBlock}, \texttt{JBlock}, \texttt{LBlock}
+    \item \textbf{Factory Function}: \texttt{createBlock(int type)}
+\end{itemize}
+
+\subsection{Cấu trúc dữ liệu \faDatabase}
+
+\subsubsection{Game Board}
+\begin{lstlisting}[caption={Định nghĩa Game Board}]
+char board[H][W];  // H = 20, W = 15
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+    \item Mảng 2 chiều biểu diễn trạng thái bàn chơi
+    \item \texttt{' '} = ô trống
+    \item \texttt{'I'}, \texttt{'O'}, \texttt{'T'}, \texttt{'S'}, \texttt{'Z'}, \texttt{'J'}, \texttt{'L'} = các loại block
+\end{itemize}
+
+\subsubsection{Block Shape}
+\begin{lstlisting}[caption={Cấu trúc Block Shape}]
+char shape[4][4];  // Mỗi block được biểu diễn trong ma trận 4x4
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+    \item Mỗi block chiếm tối đa 4x4 ô
+    \item Chỉ một phần của ma trận chứa block thực tế
+\end{itemize}
+
+\subsubsection{Game State Variables}
+\begin{lstlisting}[caption={Biến trạng thái game}]
+int level = 1;              // Level hiện tại
+int totalLines = 0;          // Tổng số dòng đã xóa
+int fallDelay = BASE_DELAY;  // Thời gian delay giữa các lần rơi (ms)
+int x, y;                    // Vị trí block hiện tại trên board
+Blocks* currentBlock;         // Con trỏ đến block đang rơi
+\end{lstlisting}
+
+\subsubsection{Constants}
+\begin{lstlisting}[caption={Các hằng số trong game}]
+#define H 20                  // Chiều cao board
+#define W 15                  // Chiều rộng board
+#define MIN_DELAY 100         // Delay tối thiểu (ms)
+#define BASE_DELAY 1000       // Delay cơ bản (ms)
+#define SPEED_STEP 40         // Bước tăng tốc mỗi level
+#define LINES_PER_LEVEL 5     // Số dòng cần xóa để lên level
+\end{lstlisting}
+
+\subsection{Các module chính \faPuzzlePiece}
+
+\subsubsection{Module Blocks (blocks.h)}
+
+\textbf{Class Blocks (Base Class)}:
+\begin{lstlisting}[caption={Định nghĩa class Blocks cơ sở}]
+class Blocks {
+protected:
+    char shape[4][4];
+    int rotationState;
+public:
+    virtual ~Blocks();
+    char getCell(int i, int j) const;
+    virtual void rotate() = 0;  // Pure virtual - đa hình
+    virtual bool canRotate() const;
+};
+\end{lstlisting}
+
+\textbf{Trách nhiệm}:
+\begin{itemize}[leftmargin=*]
+    \item Định nghĩa interface chung cho tất cả các block
+    \item Cung cấp phương thức truy cập shape
+    \item Định nghĩa virtual method \texttt{rotate()} để các class con override
+\end{itemize}
+
+\textbf{Derived Classes}:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|p{6cm}|}
+\hline
+\textbf{Class} & \textbf{Số trạng thái xoay} & \textbf{Mô tả} \\
+\hline
+\texttt{IBlock} & 2 & Block thẳng (dọc/ngang) \\
+\texttt{OBlock} & 0 & Block vuông (không xoay) \\
+\texttt{TBlock} & 4 & Block hình chữ T \\
+\texttt{SBlock} & 2 & Block hình chữ S \\
+\texttt{ZBlock} & 2 & Block hình chữ Z \\
+\texttt{JBlock} & 4 & Block hình chữ J \\
+\texttt{LBlock} & 4 & Block hình chữ L \\
+\hline
+\end{tabular}
+\caption{Bảng các loại block và số trạng thái xoay}
+\end{table}
+
+\textbf{Ví dụ cấu trúc IBlock}:
+\begin{verbatim}
+Trạng thái 0 (dọc):      Trạng thái 1 (ngang):
+    [ ]                      [ ][ ][ ][ ]
+    [I]                      [I][I][I][I]
+    [I]                      [ ]
+    [I]                      [ ]
+    [I]
+\end{verbatim}
+
+\subsubsection{Module Game Logic}
+
+\textbf{Di chuyển và va chạm}:
+\begin{lstlisting}[caption={Hàm kiểm tra di chuyển}]
+bool canMove(int dx, int dy)
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+    \item Kiểm tra block có thể di chuyển theo hướng \texttt{(dx, dy)} không
+    \item Kiểm tra biên và va chạm với các block đã đặt
+\end{itemize}
+
+\textbf{Xoay block}:
+\begin{lstlisting}[caption={Hàm xoay block sử dụng polymorphism}]
+bool canRotateBlock()
+void rotateBlock()
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+    \item \texttt{canRotateBlock()}: Kiểm tra vị trí sau khi xoay có hợp lệ không
+    \item \texttt{rotateBlock()}: Sử dụng \textbf{polymorphism} - gọi \texttt{currentBlock->rotate()}
+    \item Mỗi loại block tự xử lý logic xoay riêng
+\end{itemize}
+
+\textbf{Xóa dòng}:
+\begin{lstlisting}[caption={Hàm xóa dòng đầy}]
+int removeLine()
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+    \item Quét từ dưới lên để tìm dòng đầy
+    \item Xóa dòng và dịch chuyển các dòng phía trên xuống
+    \item Trả về số dòng đã xóa
+\end{itemize}
+
+\textbf{Cập nhật tốc độ}:
+\begin{lstlisting}[caption={Hàm cập nhật tốc độ game}]
+void updateSpeed(int linesRemoved)
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+    \item Cộng dồn \texttt{totalLines}
+    \item Tính \texttt{level = totalLines / LINES\_PER\_LEVEL + 1}
+    \item Giảm \texttt{fallDelay = BASE\_DELAY - (level - 1) * SPEED\_STEP}
+    \item Giới hạn \texttt{fallDelay >= MIN\_DELAY}
+\end{itemize}
+
+\subsubsection{Module Rendering}
+
+\textbf{Vẽ board}:
+\begin{lstlisting}[caption={Hàm vẽ màn hình game}]
+void draw()
+\end{lstlisting}
+\begin{itemize}[leftmargin=*]
+    \item Xóa màn hình (\texttt{system("cls")} hoặc \texttt{system("clear")})
+    \item Vẽ border và board
+    \item Hiển thị thông tin: Level, Lines, Delay
+\end{itemize}
+
+\textbf{Quản lý block trên board}:
+\begin{lstlisting}[caption={Hàm quản lý block trên board}]
+void block2Board()    // Vẽ block lên board
+void boardDelBlock()  // Xóa block khỏi board (để di chuyển)
+\end{lstlisting}
+
+\subsubsection{Module Input Handling}
+
+\textbf{Windows (main.cpp)}:
+\begin{itemize}[leftmargin=*]
+    \item Sử dụng \texttt{conio.h}: \texttt{kbhit()}, \texttt{getch()}
+    \item \texttt{Sleep()} từ \texttt{windows.h}
+\end{itemize}
+
+\textbf{macOS/Linux (main-macos.cpp)}:
+\begin{itemize}[leftmargin=*]
+    \item Tự implement \texttt{kbhit()} và \texttt{getch()} bằng \texttt{termios.h}
+    \item Sử dụng \texttt{this\_thread::sleep\_for()} từ C++11
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Phím} & \textbf{Chức năng} \\
+\hline
+\texttt{a} & Di chuyển trái \\
+\texttt{d} & Di chuyển phải \\
+\texttt{x} & Rơi nhanh \\
+\texttt{w} hoặc \texttt{r} & Xoay block \\
+\texttt{q} & Thoát game \\
+\hline
+\end{tabular}
+\caption{Bảng điều khiển}
+\end{table}
+
+\subsection{Sơ đồ khối (Flowchart) \faProjectDiagram}
+
+\subsubsection{Sơ đồ tổng quan - Game Loop}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    startstop/.style={rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=red!30},
+    process/.style={rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30},
+    decision/.style={diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30},
+    arrow/.style={->, >=stealth, thick}
+]
+    % Start
+    \node [startstop] (start) {BẮT ĐẦU};
+    
+    % Initialize
+    \node [process, below=of start] (init) {Khởi tạo\\Random seed\\Tạo block đầu\\Khởi tạo bàn chơi};
+    
+    % Game Loop
+    \node [process, below=of init] (loop) {VÒNG LẶP GAME};
+    
+    % Remove block
+    \node [process, below=of loop] (remove) {Xóa block\\khỏi bàn chơi};
+    
+    % Check input
+    \node [decision, below=of remove] (input) {Kiểm tra\\bàn phím?};
+    
+    % Process input
+    \node [process, right=of input] (process) {Xử lý Input\\Di chuyển/Xoay/Thoát};
+    
+    % Can move down
+    \node [decision, below=of input, yshift=-1cm] (move) {Có thể rơi\\xuống?};
+    
+    % Move down
+    \node [process, left=of move] (movedown) {Di chuyển xuống};
+    
+    % Block landed
+    \node [process, right=of move, text width=3.5cm] (landed) {Block chạm đáy\\Khóa block\\Kiểm tra dòng\\Xóa dòng đầy\\Cập nhật tốc độ\\Block mới};
+    
+    % Draw
+    \node [process, below=of move, yshift=-1cm] (draw) {Vẽ block\\lên bàn chơi};
+    
+    % Render
+    \node [process, below=of draw] (render) {Hiển thị màn hình};
+    
+    % Sleep
+    \node [process, below=of render] (sleep) {Tạm dừng\\(fallDelay)};
+    
+    % Arrows
+    \draw [arrow] (start) -- (init);
+    \draw [arrow] (init) -- (loop);
+    \draw [arrow] (loop) -- (remove);
+    \draw [arrow] (remove) -- (input);
+    \draw [arrow] (input) -- node[anchor=south] {Có} (process);
+    \draw [arrow] (process) |- (move);
+    \draw [arrow] (input) -- node[anchor=east] {Không} (move);
+    \draw [arrow] (move) -- node[anchor=south] {Có} (movedown);
+    \draw [arrow] (movedown) |- (draw);
+    \draw [arrow] (move) -- node[anchor=south] {Không} (landed);
+    \draw [arrow] (landed) |- (draw);
+    \draw [arrow] (draw) -- (render);
+    \draw [arrow] (sleep) -- (loop);
+    \draw [arrow] (render) -- (sleep);
+\end{tikzpicture}
+\caption{Sơ đồ Game Loop tổng quan}
+\end{figure}
+
+\subsubsection{Sơ đồ xử lý xoay block (Polymorphism)}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    startstop/.style={rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=red!30},
+    process/.style={rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30},
+    decision/.style={diamond, minimum width=2.5cm, minimum height=1cm, text centered, draw=black, fill=green!30},
+    arrow/.style={->, >=stealth, thick}
+]
+    % User input
+    \node [startstop] (input) {Người chơi nhấn\\'w' hoặc 'r'};
+    
+    % rotateBlock
+    \node [process, below=of input] (rotate) {rotateBlock()};
+    
+    % Check
+    \node [decision, below=of rotate] (check) {currentBlock\\tồn tại?\\canRotate()?};
+    
+    % Return
+    \node [startstop, left=of check] (return1) {Thoát};
+    
+    % canRotateBlock
+    \node [process, below=of check] (canrot) {canRotateBlock()\\Kiểm tra vị trí\\sau xoay hợp lệ};
+    
+    % Valid?
+    \node [decision, below=of canrot] (valid) {Hợp lệ?};
+    
+    % Return 2
+    \node [startstop, left=of valid] (return2) {Thoát};
+    
+    % Polymorphism
+    \node [process, below=of valid, text width=4cm] (poly) {ĐA HÌNH\\currentBlock->rotate()\\Mỗi loại block có\\logic xoay riêng};
+    
+    % Arrows
+    \draw [arrow] (input) -- (rotate);
+    \draw [arrow] (rotate) -- (check);
+    \draw [arrow] (check) -- node[anchor=south] {Không} (return1);
+    \draw [arrow] (check) -- node[anchor=east] {Có} (canrot);
+    \draw [arrow] (canrot) -- (valid);
+    \draw [arrow] (valid) -- node[anchor=south] {Không} (return2);
+    \draw [arrow] (valid) -- node[anchor=east] {Có} (poly);
+\end{tikzpicture}
+\caption{Sơ đồ xử lý xoay block sử dụng polymorphism}
+\end{figure}
+
+\subsubsection{Sơ đồ xóa dòng}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    startstop/.style={rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=red!30},
+    process/.style={rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30},
+    decision/.style={diamond, minimum width=2.5cm, minimum height=1cm, text centered, draw=black, fill=green!30},
+    arrow/.style={->, >=stealth, thick}
+]
+    % Start
+    \node [startstop] (start) {removeLine()};
+    
+    % Loop
+    \node [process, below=of start] (loop) {Vòng lặp từ dưới\\lên trên (i = H-2 đến 1)};
+    
+    % Check full
+    \node [decision, below=of loop] (check) {Dòng i\\đầy?};
+    
+    % Remove
+    \node [process, right=of check, text width=3.5cm] (remove) {removed++\\Dịch chuyển tất cả\\dòng phía trên\\xuống 1\\Xóa dòng trên cùng};
+    
+    % Recheck
+    \node [process, below=of remove] (recheck) {i++ (kiểm tra\\lại dòng i)};
+    
+    % Return
+    \node [startstop, below=of check, yshift=-2cm] (return) {Trả về số dòng\\đã xóa (removed)};
+    
+    % Arrows
+    \draw [arrow] (start) -- (loop);
+    \draw [arrow] (loop) -- (check);
+    \draw [arrow] (check) -- node[anchor=south] {Có} (remove);
+    \draw [arrow] (remove) -- (recheck);
+    \draw [arrow] (recheck) |- (check);
+    \draw [arrow] (check) -- node[anchor=east] {Không} (return);
+\end{tikzpicture}
+\caption{Sơ đồ thuật toán xóa dòng}
+\end{figure}
+
+\subsection{Sơ đồ Class (Class Diagram) \faCodeBranch}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    class/.style={rectangle, draw=black, fill=blue!20, text width=3.5cm, text centered, minimum height=1cm},
+    derived/.style={rectangle, draw=black, fill=green!20, text width=2.5cm, text centered, minimum height=0.8cm},
+    factory/.style={rectangle, draw=black, fill=yellow!20, text width=3cm, text centered, minimum height=0.8cm},
+    arrow/.style={->, >=stealth, thick}
+]
+    % Base class
+    \node [class] (base) at (0,0) {
+        \textbf{Blocks}\\
+        (Abstract Class)\\
+        \texttt{- shape[4][4]}\\
+        \texttt{- rotationState}\\
+        \texttt{+ getCell()}\\
+        \texttt{+ rotate() = 0}\\
+        \texttt{+ canRotate()}
+    };
+    
+    % Derived classes row 1
+    \node [derived] (iblock) at (-4,-3) {
+        \textbf{IBlock}\\
+        \texttt{+ rotate()}\\
+        (2 states)
+    };
+    
+    \node [derived] (oblock) at (-1.3,-3) {
+        \textbf{OBlock}\\
+        \texttt{+ rotate()}\\
+        (no rot)
+    };
+    
+    \node [derived] (tblock) at (1.3,-3) {
+        \textbf{TBlock}\\
+        \texttt{+ rotate()}\\
+        (4 states)
+    };
+    
+    % Derived classes row 2
+    \node [derived] (sblock) at (-2.5,-5) {
+        \textbf{SBlock}\\
+        \texttt{+ rotate()}\\
+        (2 states)
+    };
+    
+    \node [derived] (zblock) at (0,-5) {
+        \textbf{ZBlock}\\
+        \texttt{+ rotate()}\\
+        (2 states)
+    };
+    
+    \node [derived] (jblock) at (2.5,-5) {
+        \textbf{JBlock}\\
+        \texttt{+ rotate()}\\
+        (4 states)
+    };
+    
+    \node [derived] (lblock) at (0,-7) {
+        \textbf{LBlock}\\
+        \texttt{+ rotate()}\\
+        (4 states)
+    };
+    
+    % Factory
+    \node [factory] (factory) at (5,-3.5) {
+        \textbf{createBlock()}\\
+        (Factory Function)\\
+        \texttt{+ createBlock(type)}\\
+        Returns Blocks*
+    };
+    
+    % Arrows
+    \draw [arrow] (base) -- (iblock);
+    \draw [arrow] (base) -- (oblock);
+    \draw [arrow] (base) -- (tblock);
+    \draw [arrow] (base) -- (sblock);
+    \draw [arrow] (base) -- (zblock);
+    \draw [arrow] (base) -- (jblock);
+    \draw [arrow] (base) -- (lblock);
+    \draw [arrow, dashed] (factory) -- (base);
+\end{tikzpicture}
+\caption{Sơ đồ class với inheritance và polymorphism}
+\end{figure}
+
+\subsection{Thuật toán chính \faCalculator}
+
+\subsubsection{Thuật toán xoay block (Rotation Algorithm)}
+
+\textbf{Cho các block xoay 90° (T, S, Z, J, L)}:
+\begin{equation}
+\text{new}[i][j] = \text{old}[3-j][i]
+\end{equation}
+
+Ví dụ với ma trận 4x4:
+\begin{verbatim}
+[0][0] [0][1] [0][2] [0][3]      [3][0] [2][0] [1][0] [0][0]
+[1][0] [1][1] [1][2] [1][3]  →   [3][1] [2][1] [1][1] [0][1]
+[2][0] [2][1] [2][2] [2][3]      [3][2] [2][2] [1][2] [0][2]
+[3][0] [3][1] [3][2] [3][3]      [3][3] [2][3] [1][3] [0][3]
+\end{verbatim}
+
+\textbf{Cho IBlock (đặc biệt)}:
+\begin{itemize}[leftmargin=*]
+    \item Chỉ có 2 trạng thái: dọc $\leftrightarrow$ ngang
+    \item Logic riêng: xóa và vẽ lại shape
+\end{itemize}
+
+\subsubsection{Thuật toán kiểm tra va chạm}
+
+\begin{lstlisting}[caption={Pseudocode kiểm tra va chạm}]
+bool canMove(int dx, int dy) {
+    for mỗi ô (i, j) trong shape[4][4]:
+        if shape[i][j] != ' ':
+            xt = x + j + dx
+            yt = y + i + dy
+            if (xt < 1 || xt >= W-1 || yt >= H-1):
+                return false  // Vượt biên
+            if (board[yt][xt] != ' '):
+                return false  // Va chạm với block khác
+    return true
+}
+\end{lstlisting}
+
+\subsubsection{Thuật toán xóa dòng}
+
+\begin{lstlisting}[caption={Pseudocode xóa dòng}]
+int removeLine() {
+    removed = 0
+    for i từ H-2 xuống 1:
+        if dòng i đầy:
+            removed++
+            // Dịch chuyển tất cả dòng phía trên xuống
+            for r từ i xuống 2:
+                board[r] = board[r-1]
+            // Xóa dòng trên cùng
+            board[1] = ' ' (toàn bộ)
+            i++  // Kiểm tra lại dòng i (vì đã dịch xuống)
+    return removed
+}
+\end{lstlisting}
+
+\subsubsection{Thuật toán cập nhật tốc độ}
+
+\begin{lstlisting}[caption={Pseudocode cập nhật tốc độ}]
+void updateSpeed(int linesRemoved) {
+    totalLines += linesRemoved
+    level = totalLines / LINES_PER_LEVEL + 1
+    fallDelay = BASE_DELAY - (level - 1) * SPEED_STEP
+    if (fallDelay < MIN_DELAY):
+        fallDelay = MIN_DELAY
+}
+\end{lstlisting}
+
+\textbf{Ví dụ}:
+\begin{itemize}[leftmargin=*]
+    \item Level 1: \texttt{fallDelay = 1000ms}
+    \item Level 2: \texttt{fallDelay = 960ms} (sau 5 dòng)
+    \item Level 3: \texttt{fallDelay = 920ms} (sau 10 dòng)
+    \item \ldots
+    \item Level 24: \texttt{fallDelay = 100ms} (tối đa)
+\end{itemize}
+
+\subsection{Tính năng đặc biệt \faStar}
+
+\subsubsection{Polymorphism (Đa hình)}
+
+\textbf{Ưu điểm}:
+\begin{itemize}[leftmargin=*]
+    \item Mỗi loại block tự quản lý logic xoay riêng
+    \item Dễ mở rộng: thêm block mới chỉ cần tạo class mới
+    \item Code sạch, dễ bảo trì
+\end{itemize}
+
+\textbf{Ví dụ sử dụng}:
+\begin{lstlisting}[caption={Ví dụ sử dụng polymorphism}]
+Blocks* block = createBlock(2);  // Tạo TBlock
+block->rotate();  // Gọi rotate() của TBlock, không phải Blocks
+\end{lstlisting}
+
+\subsubsection{Factory Pattern}
+
+Hàm \texttt{createBlock()} đóng vai trò Factory:
+\begin{itemize}[leftmargin=*]
+    \item Tạo object dựa trên type
+    \item Ẩn chi tiết khởi tạo
+    \item Dễ thêm block mới
+\end{itemize}
+
+\subsubsection{Cross-platform Support}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Windows}: \texttt{main.cpp} với \texttt{conio.h}
+    \item \textbf{macOS/Linux}: \texttt{main-macos.cpp} với \texttt{termios.h}
+    \item Cùng logic game, chỉ khác input/output
+\end{itemize}
+
+\subsection{Điểm mạnh và hạn chế \faBalanceScale}
+
+\subsubsection{Điểm mạnh}
+\begin{itemize}[leftmargin=*]
+    \item[\faCheck] Sử dụng OOP với polymorphism
+    \item[\faCheck] Code được tổ chức rõ ràng (tách file)
+    \item[\faCheck] Hỗ trợ đa nền tảng
+    \item[\faCheck] Dễ mở rộng (thêm block mới)
+    \item[\faCheck] Logic game hoàn chỉnh (di chuyển, xoay, xóa dòng, tăng tốc)
+\end{itemize}
+
+\subsubsection{Hạn chế và cải tiến có thể}
+\begin{itemize}[leftmargin=*]
+    \item[\faTimes] Chưa có hệ thống điểm số
+    \item[\faTimes] Chưa có preview block tiếp theo
+    \item[\faTimes] Chưa có hold block
+    \item[\faTimes] Chưa có game over detection
+    \item[\faTimes] Chưa có high score
+    \item[\faTimes] Chưa có âm thanh
+\end{itemize}
+
+\subsection{Hướng dẫn biên dịch và chạy \faTerminal}
+
+\subsubsection{Windows}
+\begin{lstlisting}[language=bash, caption={Biên dịch trên Windows}]
+g++ main.cpp -o tetris.exe
+./tetris.exe
+\end{lstlisting}
+
+\subsubsection{macOS/Linux}
+\begin{lstlisting}[language=bash, caption={Biên dịch trên macOS/Linux}]
+g++ main-macos.cpp -o tetris -std=c++11
+./tetris
+\end{lstlisting}
+
+\subsubsection{Yêu cầu}
+\begin{itemize}[leftmargin=*]
+    \item Compiler hỗ trợ C++11 trở lên
+    \item Windows: cần \texttt{conio.h} và \texttt{windows.h}
+    \item macOS/Linux: cần \texttt{termios.h} và \texttt{unistd.h}
+\end{itemize}
+
+\begin{framed}
+\noindent \textbf{\faLightbulb\ Kết luận:} Trò chơi Tetris này được xây dựng với kiến trúc OOP sử dụng polymorphism, Design Pattern Factory Pattern, cấu trúc code rõ ràng dễ bảo trì và hỗ trợ đa nền tảng. Code minh họa tốt các khái niệm Inheritance, Polymorphism, Virtual functions, Factory Pattern và Memory management.
+\end{framed}
+
+\section{Mô tả quá trình làm việc nhóm}
+\subsection{Giai đoạn khởi động và phân công ban đầu}
+
+Ở giai đoạn đầu, nhóm thống nhất yêu cầu của đề tài và xác định các chức năng chính của trò chơi Tetris Game.
+Nhóm trưởng tiến hành phân chia công việc ban đầu cho các thành viên và tạo các nhiệm vụ trên GitHub Projects.
+
+Mỗi thành viên được giao một phần chức năng cụ thể và thực hiện trên nhánh riêng nhằm tránh xung đột mã nguồn.
+
+
+Ngay từ đầu dự án, nhóm trưởng tiến hành phân chia công việc cho từng thành viên dựa trên yêu cầu của đề tài. 
+Các nhiệm vụ được tạo và quản lý trên GitHub Projects dưới dạng các thẻ công việc (Issue/Task), trong đó mỗi task đều có mô tả rõ ràng và người phụ trách cụ thể.
+
+Việc phân công giúp các thành viên chủ động trong công việc và tránh chồng chéo chức năng trong quá trình lập trình.
+\subsection{Quy trình làm việc với GitHub}
+
+Nhóm sử dụng GitHub để quản lý mã nguồn và phối hợp làm việc theo các bước sau:
+\begin{enumerate}
+    \item Các thành viên nhận task được phân công trên GitHub Projects.
+    \item Mỗi thành viên tạo nhánh riêng (branch) để thực hiện chức năng được giao.
+    \item Sau khi hoàn thành, thành viên tạo Pull Request để gửi mã nguồn lên nhánh chính.
+    \item Nhóm trưởng và các thành viên khác tiến hành review mã nguồn.
+    \item Sau khi sửa lỗi và hoàn thiện, mã nguồn được merge vào nhánh chính của dự án.
+\end{enumerate}
+
+Quy trình này giúp hạn chế lỗi và đảm bảo tính ổn định của chương trình.
+\subsection{Giai đoạn phát triển và các khó khăn gặp phải}
+
+Trong quá trình lập trình, nhóm gặp một số khó khăn như:
+\begin{figure}[H]
+    \centering
+    \fbox{
+    \includegraphics[width=0.95\textwidth]{Hình ảnh/G.3.Xung Đột.png}
+    }
+    \caption{Xung đột khi trao đổi làm việc trên GitHub}
+    \label{fig:kanban}
+\end{figure}
+\begin{itemize}
+    \item Lỗi biên dịch do cách tổ chức hàm và biến toàn cục chưa hợp lý.
+    \item Một số chức năng có logic phức tạp, đặc biệt là xử lý xóa dòng trong trò chơi Tetris.
+    \item Xung đột mã nguồn khi nhiều thành viên cùng chỉnh sửa các phần liên quan.
+\end{itemize}
+
+Những khó khăn này ảnh hưởng đến tiến độ và yêu cầu nhóm phải điều chỉnh lại cách làm việc.
+
+\subsection{Theo dõi tiến độ công việc}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Hình ảnh/G.3.kanban_board.png}
+    \caption{Bảng Kanban quản lý tiến độ dự án Tetris Game trên GitHub}
+    \label{fig:kanban}
+\end{figure}
+Tiến độ dự án được theo dõi thông qua bảng Kanban trên GitHub Projects với các trạng thái:
+\begin{itemize}
+    \item Backlog: Các công việc chưa bắt đầu
+    \item In Progress: Các công việc đang được thực hiện
+    \item In Review: Các công việc đang được kiểm tra
+    \item Done: Các công việc đã hoàn thành
+\end{itemize}
+
+Việc sử dụng Kanban Board giúp nhóm dễ dàng kiểm soát tiến độ và nắm được tình trạng của từng nhiệm vụ.
+\subsection{Phối hợp và xử lý lỗi}
+\begin{figure}[H]
+    \centering
+    \fbox{
+    \includegraphics[width=0.95\textwidth]{Hình ảnh/G.5.Xu Ly Xung Dot.png}
+    }
+    \caption{Xử lý xung đột khi trao đổi làm việc trên GitHub}
+    \label{fig:kanban}
+\end{figure}
+Trong quá trình phát triển, các thành viên thường xuyên trao đổi với nhau thông qua kênh chat để thảo luận về lỗi, logic chương trình và cách cải tiến chức năng.
+Khi phát hiện lỗi trong quá trình review, nhóm sẽ ghi chú cụ thể và yêu cầu chỉnh sửa trước khi merge code.
+
+Việc review chéo giúp nâng cao chất lượng mã nguồn và giúp các thành viên học hỏi lẫn nhau.
+Khi phát sinh lỗi và khó khăn, nhóm tiến hành rà soát lại nhiệm vụ của từng thành viên.
+Một số công việc được điều chỉnh và phân chia lại để phù hợp hơn với khả năng của từng người.
+
+Các thành viên trao đổi trực tiếp và thông qua công cụ GitHub để:
+\begin{itemize}
+    \item Review mã nguồn của nhau.
+    \item Ghi chú lỗi và đề xuất hướng sửa thông qua Pull Request.
+    \item Chỉnh sửa lại logic chương trình dựa trên góp ý chung của nhóm.
+\end{itemize}
+
+Việc phân chia lại công việc giúp nhóm xử lý được các lỗi tồn đọng và cải thiện chất lượng chương trình.
+
+\subsection{Giai đoạn hoàn thiện và tích hợp}
+
+Sau khi các chức năng chính được sửa lỗi và hoàn thiện, nhóm tiến hành tích hợp toàn bộ chương trình trên nhánh chính.
+Các thành viên tiếp tục kiểm thử tổng thể, điều chỉnh lại giao diện và tốc độ trò chơi để đảm bảo chương trình hoạt động ổn định.
+
+Những lỗi phát sinh ở giai đoạn cuối được xử lý nhanh chóng thông qua việc trao đổi và hỗ trợ lẫn nhau.
+\subsection{Đánh giá quá trình làm việc nhóm}
+
+Thông qua các giai đoạn thực hiện đồ án, nhóm rút ra được nhiều kinh nghiệm về làm việc nhóm, đặc biệt là kỹ năng phân công công việc, phối hợp sửa lỗi và sử dụng GitHub trong quản lý dự án.
+Việc chủ động điều chỉnh và phân chia lại công việc giúp nhóm hoàn thành đồ án đúng hạn và đạt được mục tiêu đề ra.
+
+
+\section{Các kỹ năng mà nhóm đã áp dụng trong đồ án}
+
+\section{Đánh giá việc thực hiện hợp đồng nhóm}
+
+Căn cứ vào hợp đồng nhóm và bảng phân công nhiệm vụ đã thống nhất, trong suốt quá trình thực hiện đồ án Tetris, các thành viên trong nhóm đã thực hiện đúng và đầy đủ vai trò, trách nhiệm được giao. Nhóm làm việc với tinh thần nghiêm túc, hợp tác và có sự phối hợp chặt chẽ giữa các thành viên nhằm đảm bảo tiến độ và chất lượng của sản phẩm cuối cùng.
+
+Thành viên \textbf{Nguyễn Thanh Lộc} (MSSV: 25730039), với vai trò \textbf{trưởng nhóm}, đã thực hiện tốt nhiệm vụ điều phối chung, theo dõi tiến độ của các thành viên, tổng hợp nội dung báo cáo và chuẩn hóa định dạng LaTeX. Đặc biệt, thành viên đã áp dụng thành công tính đa hình (polymorphism) cho lớp khối, chuyển đổi từ cấu trúc mảng sang hệ thống class với virtual methods, góp phần nâng cao chất lượng code và thể hiện rõ tư duy lập trình hướng đối tượng. Trưởng nhóm cũng chịu trách nhiệm rà soát và hoàn thiện bản nộp cuối cùng, đảm bảo tính thống nhất và đầy đủ của toàn bộ đồ án.
+
+Thành viên \textbf{Nguyễn Hữu Lộc} (MSSV: 25730038) đã hoàn thành tốt nhiệm vụ xây dựng \textbf{chức năng xóa hàng khi đã hoàn thành}. Thành viên đã phát triển thuật toán xóa dòng hiệu quả, bao gồm việc quét từ dưới lên để tìm các dòng đầy, xóa dòng và dịch chuyển các dòng phía trên xuống. Bên cạnh đó, thành viên còn chịu trách nhiệm tổng hợp quá trình làm việc nhóm, ghi nhận các hoạt động, khó khăn và giải pháp trong suốt quá trình phát triển đồ án, góp phần tạo nên tài liệu mô tả quá trình làm việc nhóm đầy đủ và chi tiết.
+
+Thành viên \textbf{Trương Anh Khoa} (MSSV: 25730035) đảm nhiệm \textbf{thiết kế giao diện trò chơi}, bao gồm bố cục màn hình và trạng thái trò chơi. Thành viên đã tạo ra giao diện rõ ràng, trực quan với các thành phần như border, board, và hiển thị thông tin level, lines, delay. Giao diện được thiết kế phù hợp với đặc trưng của game Tetris cổ điển, góp phần nâng cao trải nghiệm người chơi. Đồng thời, thành viên còn chịu trách nhiệm viết phần đánh giá hợp đồng nhóm này, đảm bảo đánh giá chính xác và công bằng về việc thực hiện nhiệm vụ của từng thành viên.
+
+Thành viên \textbf{Nguyễn Đình Đức} (MSSV: 25730017) chịu trách nhiệm phát triển \textbf{cấu trúc chương trình và các mô-đun điều khiển}, bao gồm vòng lặp game (game loop), tốc độ rơi và cơ chế tăng dần độ khó. Thành viên đã xây dựng hệ thống quản lý tốc độ game hiệu quả với các hằng số như BASE\_DELAY, SPEED\_STEP, và LINES\_PER\_LEVEL, tạo ra cơ chế tăng level tự động khi người chơi xóa được nhiều dòng. Các chức năng này giúp trò chơi vận hành logic, mạch lạc và đúng với đặc trưng của game Tetris cổ điển.
+
+Thành viên \textbf{Hoàng Xuân Phong} (MSSV: 25730052) đã thực hiện tốt nhiệm vụ \textbf{phát triển chức năng xoay khối khi đang rơi}. Thành viên đã xây dựng hệ thống xoay block với các hàm canRotateBlock() và rotateBlock(), đảm bảo block chỉ xoay khi vị trí sau khi xoay hợp lệ. Chức năng này được tích hợp vào game loop và hoạt động mượt mà với các phím điều khiển. Bên cạnh đó, thành viên còn chịu trách nhiệm tổng hợp các kỹ năng mà nhóm đã sử dụng để hoàn thành báo cáo, góp phần làm rõ các công nghệ, phương pháp và best practices được áp dụng trong dự án.
+
+Nhìn chung, việc thực hiện hợp đồng nhóm được đánh giá là \textbf{nghiêm túc, đúng kế hoạch và hiệu quả}. Mỗi thành viên đều hoàn thành tốt nhiệm vụ được phân công, có tinh thần trách nhiệm và hỗ trợ lẫn nhau. Sự phối hợp đồng bộ giữa các thành viên đã góp phần quan trọng vào việc hoàn thành đồ án đúng thời hạn và đạt được các mục tiêu đề ra.
+
+\end{document}
