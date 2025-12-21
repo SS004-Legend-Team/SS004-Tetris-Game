@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <thread>
 #include <chrono>
+#include <string>
+#include "blocks.h"
 
 using namespace std;
 #define H 20
@@ -56,76 +58,16 @@ char getch() {
   return ch;
 }
 
-int x, y, b;
-char blocks[][4][4] = {{{' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '}},
-                       {{' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {'I', 'I', 'I', 'I'},
-                        {' ', ' ', ' ', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'T', ' ', ' '},
-                        {'T', 'T', 'T', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'S', 'S', ' '},
-                        {'S', 'S', ' ', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {'Z', 'Z', ' ', ' '},
-                        {' ', 'Z', 'Z', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {'J', ' ', ' ', ' '},
-                        {'J', 'J', 'J', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', ' ', 'L', ' '},
-                        {'L', 'L', 'L', ' '},
-                        {' ', ' ', ' ', ' '}}};
+int x, y;
+
+// Con trỏ đến block hiện tại
+Blocks* currentBlock = nullptr;
 
 bool canMove(int dx, int dy) {
+  if (!currentBlock) return false;
   for (int i = 0; i < 4; i++)
     for (int j = 0; j < 4; j++)
-      if (blocks[b][i][j] != ' ') {
+      if (currentBlock->getCell(i, j) != ' ') {
         int xt = x + j + dx;
         int yt = y + i + dy;
         if (xt < 1 || xt >= W - 1 || yt >= H - 1)
@@ -137,16 +79,18 @@ bool canMove(int dx, int dy) {
 }
 
 void block2Board() {
+  if (!currentBlock) return;
   for (int i = 0; i < 4; i++)
     for (int j = 0; j < 4; j++)
-      if (blocks[b][i][j] != ' ')
-        board[y + i][x + j] = blocks[b][i][j];
+      if (currentBlock->getCell(i, j) != ' ')
+        board[y + i][x + j] = currentBlock->getCell(i, j);
 }
 
 void boardDelBlock() {
+  if (!currentBlock) return;
   for (int i = 0; i < 4; i++)
     for (int j = 0; j < 4; j++)
-      if (blocks[b][i][j] != ' ')
+      if (currentBlock->getCell(i, j) != ' ')
         board[y + i][x + j] = ' ';
 }
 
@@ -163,7 +107,7 @@ void draw() {
   const int playH = H - 1;
 
   // Top border
-  cout << "+" << string(playW * 2 + 2, '-') << "+\n";
+  cout << "+" << std::string(playW * 2 + 2, '-') << "+\n";
 
   for (int i = 0; i < playH; i++) {
     cout << "|+";
@@ -177,7 +121,7 @@ void draw() {
   }
 
   // Bottom border
-  cout << "+" << string(playW * 2 + 2, '-') << "+\n";
+  cout << "+" << std::string(playW * 2 + 2, '-') << "+\n";
 
   cout << "Level: " << level
        << " | Lines: " << totalLines
@@ -245,85 +189,26 @@ void updateSpeed(int linesRemoved) {
     }
 }
 
-// Helper function to check if a rotated piece fits
-bool canRotate(char tempBlock[4][4]) {
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            if (tempBlock[i][j] != ' ') {
-                int xt = x + j;
-                int yt = y + i;
-                // Check boundaries
-                if (xt < 1 || xt >= W - 1 || yt >= H - 1 || yt < 0)
-                    return false;
-                // Check if space is already occupied
-                if (board[yt][xt] != ' ')
-                    return false;
-            }
-        }
-    }
-    return true;
-}
-
-void rotate() {
-    char rotated[4][4];
-    // Perform 90-degree clockwise rotation
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            rotated[j][3 - i] = blocks[b][i][j];
-        }
-    }
-
-    // Only apply rotation if the new position is valid
-    if (canRotate(rotated)) {
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                blocks[b][i][j] = rotated[i][j];
-            }
-        }
-    }
-}
-
-int main() {
-  srand(time(0));
-  x = 5;
-  y = 0;
-  b = rand() % 7;
-  initBoard();
-  while (1) {
-    boardDelBlock();
-    if (kbhit()) {
-      char c = getch();
-      if (c == 'a' && canMove(-1, 0))
-        x--;
-      if (c == 'd' && canMove(1, 0))
-        x++;
-      if (c == 'x' && canMove(0, 1))
-        y++;
-      if (c == 'w')                  
-        rotate();
-      if (c == 'q')
-        break;
-    }
-    if (canMove(0, 1))
-      y++;
-    else {
-      block2Board();
-      const int linesRemoved = removeLine();
-      updateSpeed(linesRemoved);
-      x = 5;
-      y = 0;
-      b = rand() % 7;
-    }
-    block2Board();
-    draw();
-    this_thread::sleep_for(chrono::milliseconds(fallDelay));
-  }
-  return 0;
-}
-bool canRotate(char newBlock[4][4]) {
+// Kiểm tra có thể xoay block hiện tại không
+bool canRotateBlock() {
+    if (!currentBlock) return false;
+    
+    // Tạo một bản sao tạm để kiểm tra
+    char temp[4][4];
     for (int i = 0; i < 4; i++)
         for (int j = 0; j < 4; j++)
-            if (newBlock[i][j] != ' ') {
+            temp[i][j] = currentBlock->getCell(i, j);
+    
+    // Xoay tạm thời
+    char rotated[4][4];
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            rotated[i][j] = temp[3 - j][i];
+    
+    // Kiểm tra vị trí sau khi xoay
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            if (rotated[i][j] != ' ') {
                 int xt = x + j;
                 int yt = y + i;
 
@@ -335,16 +220,52 @@ bool canRotate(char newBlock[4][4]) {
     return true;
 }
 
+// Xoay block sử dụng polymorphism
 void rotateBlock() {
-    char temp[4][4];
-
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
-            temp[i][j] = blocks[b][3 - j][i];
-
-    if (canRotate(temp)) {
-        for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 4; j++)
-                blocks[b][i][j] = temp[i][j];
+    if (!currentBlock || !currentBlock->canRotate()) return;
+    
+    if (canRotateBlock()) {
+        // Sử dụng virtual method để xoay - đa hình
+        currentBlock->rotate();
     }
+}
+
+int main() {
+  srand(time(0));
+  x = 5;
+  y = 0;
+  currentBlock = createBlock(rand() % 7);
+  initBoard();
+  while (1) {
+    boardDelBlock();
+    if (kbhit()) {
+      char c = getch();
+      if (c == 'a' && canMove(-1, 0))
+        x--;
+      if (c == 'd' && canMove(1, 0))
+        x++;
+      if (c == 'x' && canMove(0, 1))
+        y++;
+      if (c == 'w' || c == 'r')  // Thêm phím xoay
+        rotateBlock();
+      if (c == 'q')
+        break;
+    }
+    if (canMove(0, 1))
+      y++;
+    else {
+      block2Board();
+      const int linesRemoved = removeLine();
+      updateSpeed(linesRemoved);
+      x = 5;
+      y = 0;
+      delete currentBlock;  // Giải phóng block cũ
+      currentBlock = createBlock(rand() % 7);
+    }
+    block2Board();
+    draw();
+    this_thread::sleep_for(chrono::milliseconds(fallDelay));
+  }
+  delete currentBlock;  // Giải phóng trước khi kết thúc
+  return 0;
 }

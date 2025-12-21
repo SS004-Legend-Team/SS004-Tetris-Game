@@ -1,5 +1,10 @@
 #include <conio.h>
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <windows.h>
+#include <string>
+#include "blocks.h"
 
 using namespace std;
 #define H 20
@@ -17,75 +22,15 @@ int level = 1;
 int totalLines = 0;
 int fallDelay = BASE_DELAY;
 
-int x, y, b;
-char blocks[][4][4] = {{{' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '}},
-                       {{' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '},
-                        {' ', 'I', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {'I', 'I', 'I', 'I'},
-                        {' ', ' ', ' ', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', 'O', 'O', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'T', ' ', ' '},
-                        {'T', 'T', 'T', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', 'S', 'S', ' '},
-                        {'S', 'S', ' ', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {'Z', 'Z', ' ', ' '},
-                        {' ', 'Z', 'Z', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {'J', ' ', ' ', ' '},
-                        {'J', 'J', 'J', ' '},
-                        {' ', ' ', ' ', ' '}},
-                       {{' ', ' ', ' ', ' '},
-                        {' ', ' ', 'L', ' '},
-                        {'L', 'L', 'L', ' '},
-                        {' ', ' ', ' ', ' '}}};
+int x, y;
+
+// Con trỏ đến block hiện tại
+Blocks* currentBlock = nullptr;
 bool canMove(int dx, int dy) {
+  if (!currentBlock) return false;
   for (int i = 0; i < 4; i++)
     for (int j = 0; j < 4; j++)
-      if (blocks[b][i][j] != ' ') {
+      if (currentBlock->getCell(i, j) != ' ') {
         int xt = x + j + dx;
         int yt = y + i + dy;
         if (xt < 1 || xt >= W - 1 || yt >= H - 1)
@@ -96,15 +41,17 @@ bool canMove(int dx, int dy) {
   return true;
 }
 void block2Board() {
+  if (!currentBlock) return;
   for (int i = 0; i < 4; i++)
     for (int j = 0; j < 4; j++)
-      if (blocks[b][i][j] != ' ')
-        board[y + i][x + j] = blocks[b][i][j];
+      if (currentBlock->getCell(i, j) != ' ')
+        board[y + i][x + j] = currentBlock->getCell(i, j);
 }
 void boardDelBlock() {
+  if (!currentBlock) return;
   for (int i = 0; i < 4; i++)
     for (int j = 0; j < 4; j++)
-      if (blocks[b][i][j] != ' ')
+      if (currentBlock->getCell(i, j) != ' ')
         board[y + i][x + j] = ' ';
 }
 void initBoard() {
@@ -120,7 +67,7 @@ void draw() {
   const int playH = H - 1;
 
   // Top border
-  cout << "+" << string(playW * 2 + 2, '-') << "+\n";
+  cout << "+" << std::string(playW * 2 + 2, '-') << "+\n";
 
   for (int i = 0; i < playH; i++) {
     cout << "|+";
@@ -134,7 +81,7 @@ void draw() {
   }
 
   // Bottom border
-  cout << "+" << string(playW * 2 + 2, '-') << "+\n";
+  cout << "+" << std::string(playW * 2 + 2, '-') << "+\n";
 
   cout << "Level: " << level
        << " | Lines: " << totalLines
@@ -153,11 +100,26 @@ int removeLine();
  */
 void updateSpeed(int linesRemoved);
 
+/**
+ * Kiểm tra có thể xoay block hiện tại không
+ */
+bool canRotateBlock();
+
+/**
+ * Xoay block sử dụng polymorphism
+ */
+void rotateBlock();
+
+/**
+ * Tạo block mới dựa trên type
+ */
+Blocks* createBlock(int type);
+
 int main() {
   srand(time(0));
   x = 5;
   y = 0;
-  b = rand() % 7;
+  currentBlock = createBlock(rand() % 7);
   initBoard();
   while (1) {
     boardDelBlock();
@@ -169,6 +131,8 @@ int main() {
         x++;
       if (c == 'x' && canMove(0, 1))
         y++;
+      if (c == 'w' || c == 'r')  // Thêm phím xoay
+        rotateBlock();
       if (c == 'q')
         break;
     }
@@ -180,12 +144,14 @@ int main() {
       updateSpeed(linesRemoved);
       x = 5;
       y = 0;
-      b = rand() % 7;
+      delete currentBlock;  // Giải phóng block cũ
+      currentBlock = createBlock(rand() % 7);
     }
     block2Board();
     draw();
-    _sleep(fallDelay);
+    Sleep(fallDelay);
   }
+  delete currentBlock;  // Giải phóng trước khi kết thúc
   return 0;
 }
 
@@ -241,10 +207,26 @@ void updateSpeed(int linesRemoved) {
         fallDelay = MIN_DELAY;
     }
 }
- bool canRotate(char newBlock[4][4]) {
+// Kiểm tra có thể xoay block hiện tại không
+bool canRotateBlock() {
+    if (!currentBlock) return false;
+    
+    // Tạo một bản sao tạm để kiểm tra
+    char temp[4][4];
     for (int i = 0; i < 4; i++)
         for (int j = 0; j < 4; j++)
-            if (newBlock[i][j] != ' ') {
+            temp[i][j] = currentBlock->getCell(i, j);
+    
+    // Xoay tạm thời
+    char rotated[4][4];
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            rotated[i][j] = temp[3 - j][i];
+    
+    // Kiểm tra vị trí sau khi xoay
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            if (rotated[i][j] != ' ') {
                 int xt = x + j;
                 int yt = y + i;
 
@@ -256,16 +238,12 @@ void updateSpeed(int linesRemoved) {
     return true;
 }
 
+// Xoay block sử dụng polymorphism
 void rotateBlock() {
-    char temp[4][4];
-
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
-            temp[i][j] = blocks[b][3 - j][i];
-
-    if (canRotate(temp)) {
-        for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 4; j++)
-                blocks[b][i][j] = temp[i][j];
+    if (!currentBlock || !currentBlock->canRotate()) return;
+    
+    if (canRotateBlock()) {
+        // Sử dụng virtual method để xoay - đa hình
+        currentBlock->rotate();
     }
 }
