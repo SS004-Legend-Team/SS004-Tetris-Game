@@ -184,6 +184,31 @@ public:
     }
 };
 
+// L-Block: có 4 trạng thái xoay
+class LBlock : public Blocks {
+public:
+    LBlock() {
+        shape[1][2] = 'L';
+        shape[2][0] = 'L';
+        shape[2][1] = 'L';
+        shape[2][2] = 'L';
+        rotationState = 0;
+    }
+    
+    void rotate() override {
+        char temp[4][4];
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                temp[i][j] = shape[3 - j][i];
+        
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                shape[i][j] = temp[i][j];
+        
+        rotationState = (rotationState + 1) % 4;
+    }
+};
+
 // Hàm factory để tạo block mới dựa trên type
 inline Blocks* createBlock(int type) {
     switch (type) {
@@ -193,6 +218,7 @@ inline Blocks* createBlock(int type) {
         case 3: return new SBlock();
         case 4: return new ZBlock();
         case 5: return new JBlock();
+        case 6: return new LBlock();
         default: return new IBlock();
     }
 }
