@@ -20,7 +20,27 @@ Dự án game Tetris được phát triển bằng C++ với giao diện console
 
 ## 🎯 Giới thiệu
 
-Đây là một phiên bản Tetris cổ điển được triển khai bằng C++ thuần, chạy trên terminal/console. Game sử dụng các thư viện POSIX để xử lý input không đồng bộ và tương thích với nhiều hệ điều hành.
+**SS004 - Tetris Game** là một dự án game Tetris cổ điển được phát triển bằng ngôn ngữ lập trình C++, chạy trên giao diện console/terminal. Dự án được thiết kế với mục tiêu áp dụng các nguyên lý lập trình hướng đối tượng (OOP), đặc biệt là tính đa hình (polymorphism) và kế thừa (inheritance) trong việc quản lý các khối Tetrominoes.
+
+### Mục tiêu dự án
+
+Dự án nhằm mục đích:
+- **Thực hành OOP**: Áp dụng các khái niệm class, inheritance, polymorphism trong C++
+- **Xây dựng game console**: Phát triển một game hoàn chỉnh với giao diện text-based
+- **Cross-platform development**: Hỗ trợ đa nền tảng (macOS, Linux, Windows)
+- **Tối ưu hóa hiệu năng**: Xử lý input không đồng bộ và tối ưu vòng lặp game
+
+### Đặc điểm kỹ thuật
+
+- **Ngôn ngữ**: C++11 trở lên
+- **Kiến trúc**: Object-Oriented Programming với base class `Blocks` và các derived classes
+- **Design Pattern**: Factory Pattern để tạo các loại block khác nhau
+- **Input Handling**: Non-blocking keyboard input sử dụng POSIX APIs (macOS/Linux) và Windows APIs
+- **Game Loop**: Vòng lặp game được tối ưu với timing chính xác và phản hồi input nhanh
+
+### Tính năng nổi bật
+
+Game hỗ trợ đầy đủ 7 loại khối Tetrominoes chuẩn (I, O, T, S, Z, J, L) với khả năng xoay và di chuyển. Mỗi loại khối được triển khai như một class riêng biệt kế thừa từ class `Blocks` cơ sở, cho phép mỗi khối có logic xoay riêng phù hợp với đặc tính của nó (ví dụ: I-block có 2 trạng thái xoay, O-block không xoay, các block khác có 4 trạng thái).
 
 > 📖 Để biết thêm về cách chơi và chiến lược, xem file [INTRODUCE.md](./INTRODUCE.md)
 
