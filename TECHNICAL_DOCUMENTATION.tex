@@ -1,0 +1,749 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{float}
+\usetikzlibrary{shapes,arrows,positioning,calc}
+
+% Cấu hình geometry
+\geometry{
+    left=2.5cm,
+    right=2.5cm,
+    top=3cm,
+    bottom=3cm
+}
+
+% Cấu hình listings cho code
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{gray!10},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=2,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    escapeinside={\%*}{*)}
+}
+
+% Màu sắc cho hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Tài liệu kỹ thuật - Trò chơi Tetris},
+    pdfauthor={SS004-Tetris-Game Team}
+}
+
+% Tiêu đề
+\title{\textbf{TÀI LIỆU KỸ THUẬT}\\
+\large Trò chơi Tetris\\
+\large Sử dụng C++ với OOP và Polymorphism}
+\author{SS004-Tetris-Game Team}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{TỔNG QUAN}
+
+\subsection{Mô tả}
+Tetris là trò chơi puzzle cổ điển, người chơi điều khiển các khối hình (tetromino) rơi xuống và sắp xếp chúng để tạo thành các dòng hoàn chỉnh. Khi một dòng được lấp đầy, nó sẽ bị xóa và người chơi được điểm. Tốc độ rơi tăng dần theo level.
+
+\subsection{Công nghệ sử dụng}
+\begin{itemize}
+    \item \textbf{Ngôn ngữ}: C++
+    \item \textbf{Paradigm}: Hướng đối tượng (OOP) với tính đa hình (Polymorphism)
+    \item \textbf{Platform}: 
+    \begin{itemize}
+        \item Windows: \texttt{main.cpp} (sử dụng \texttt{conio.h}, \texttt{windows.h})
+        \item macOS/Linux: \texttt{main-macos.cpp} (sử dụng \texttt{termios.h}, \texttt{unistd.h})
+    \end{itemize}
+\end{itemize}
+
+\subsection{Cấu trúc file}
+\begin{lstlisting}[language=bash, caption={Cấu trúc thư mục dự án}]
+SS004-Tetris-Game/
+├── blocks.h          # Định nghĩa các class Blocks và derived classes
+├── main.cpp          # Code chính cho Windows
+├── main-macos.cpp    # Code chính cho macOS/Linux
+└── TECHNICAL_DOCUMENTATION.md  # Tài liệu markdown
+\end{lstlisting}
+
+\section{KIẾN TRÚC HỆ THỐNG}
+
+\subsection{Kiến trúc tổng quan}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    box/.style={rectangle, draw=black, fill=blue!20, text width=3.2cm, text centered, minimum height=1cm},
+    arrow/.style={->, >=stealth, thick}
+]
+    % Game Engine - Top row
+    \node[box] (input) at (0,0) {Xử lý Input};
+    \node[box] (logic) at (4,0) {Điều khiển Logic Game};
+    \node[box] (render) at (8,0) {Hệ thống Hiển thị};
+    
+    \draw[arrow] (input) -- (logic);
+    \draw[arrow] (logic) -- (render);
+    
+    % Subsystems - Middle row
+    \node[box, below=of input] (keyboard) {Sự kiện Bàn phím};
+    \node[box, below=of logic] (blockmgmt) {Quản lý Khối};
+    \node[box, below=of render] (display) {Xuất Màn hình};
+    
+    \draw[arrow] (input) -- (keyboard);
+    \draw[arrow] (logic) -- (blockmgmt);
+    \draw[arrow] (render) -- (display);
+    
+    % External - Bottom row
+    \node[box, below=of keyboard, fill=green!20] (blocks) {Blocks.h (OOP)};
+    \node[box, below=of blockmgmt, fill=green!20] (board) {Bàn chơi (Mảng 2D)};
+    \node[box, below=of display, fill=green!20] (console) {Màn hình Console};
+    
+    \draw[arrow] (keyboard) -- (blocks);
+    \draw[arrow] (blockmgmt) -- (board);
+    \draw[arrow] (display) -- (console);
+\end{tikzpicture}
+\caption{Kiến trúc tổng quan của hệ thống}
+\end{figure}
+
+\subsection{Mô hình hướng đối tượng}
+
+Hệ thống sử dụng \textbf{Design Pattern: Factory Pattern} và \textbf{Polymorphism}:
+
+\begin{itemize}
+    \item \textbf{Base Class}: \texttt{Blocks} (abstract class)
+    \item \textbf{Derived Classes}: \texttt{IBlock}, \texttt{OBlock}, \texttt{TBlock}, \texttt{SBlock}, \texttt{ZBlock}, \texttt{JBlock}, \texttt{LBlock}
+    \item \textbf{Factory Function}: \texttt{createBlock(int type)}
+\end{itemize}
+
+\section{CẤU TRÚC DỮ LIỆU}
+
+\subsection{Game Board}
+\begin{lstlisting}[caption={Định nghĩa Game Board}]
+char board[H][W];  // H = 20, W = 15
+\end{lstlisting}
+\begin{itemize}
+    \item Mảng 2 chiều biểu diễn trạng thái bàn chơi
+    \item \texttt{' '} = ô trống
+    \item \texttt{'I'}, \texttt{'O'}, \texttt{'T'}, \texttt{'S'}, \texttt{'Z'}, \texttt{'J'}, \texttt{'L'} = các loại block
+\end{itemize}
+
+\subsection{Block Shape}
+\begin{lstlisting}[caption={Cấu trúc Block Shape}]
+char shape[4][4];  // Mỗi block được biểu diễn trong ma trận 4x4
+\end{lstlisting}
+\begin{itemize}
+    \item Mỗi block chiếm tối đa 4x4 ô
+    \item Chỉ một phần của ma trận chứa block thực tế
+\end{itemize}
+
+\subsection{Game State Variables}
+\begin{lstlisting}[caption={Biến trạng thái game}]
+int level = 1;              // Level hiện tại
+int totalLines = 0;          // Tổng số dòng đã xóa
+int fallDelay = BASE_DELAY;  // Thời gian delay giữa các lần rơi (ms)
+int x, y;                    // Vị trí block hiện tại trên board
+Blocks* currentBlock;         // Con trỏ đến block đang rơi
+\end{lstlisting}
+
+\subsection{Constants}
+\begin{lstlisting}[caption={Các hằng số trong game}]
+#define H 20                  // Chiều cao board
+#define W 15                  // Chiều rộng board
+#define MIN_DELAY 100         // Delay tối thiểu (ms)
+#define BASE_DELAY 1000       // Delay cơ bản (ms)
+#define SPEED_STEP 40         // Bước tăng tốc mỗi level
+#define LINES_PER_LEVEL 5     // Số dòng cần xóa để lên level
+\end{lstlisting}
+
+\section{CÁC MODULE CHÍNH}
+
+\subsection{Module Blocks (blocks.h)}
+
+\subsubsection{Class Blocks (Base Class)}
+\begin{lstlisting}[caption={Định nghĩa class Blocks cơ sở}]
+class Blocks {
+protected:
+    char shape[4][4];
+    int rotationState;
+public:
+    virtual ~Blocks();
+    char getCell(int i, int j) const;
+    virtual void rotate() = 0;  // Pure virtual - đa hình
+    virtual bool canRotate() const;
+};
+\end{lstlisting}
+
+\textbf{Trách nhiệm}:
+\begin{itemize}
+    \item Định nghĩa interface chung cho tất cả các block
+    \item Cung cấp phương thức truy cập shape
+    \item Định nghĩa virtual method \texttt{rotate()} để các class con override
+\end{itemize}
+
+\subsubsection{Derived Classes}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Class} & \textbf{Số trạng thái xoay} & \textbf{Mô tả} \\
+\hline
+\texttt{IBlock} & 2 & Block thẳng (dọc/ngang) \\
+\texttt{OBlock} & 0 & Block vuông (không xoay) \\
+\texttt{TBlock} & 4 & Block hình chữ T \\
+\texttt{SBlock} & 2 & Block hình chữ S \\
+\texttt{ZBlock} & 2 & Block hình chữ Z \\
+\texttt{JBlock} & 4 & Block hình chữ J \\
+\texttt{LBlock} & 4 & Block hình chữ L \\
+\hline
+\end{tabular}
+\caption{Bảng các loại block và số trạng thái xoay}
+\end{table}
+
+\textbf{Ví dụ cấu trúc IBlock}:
+\begin{verbatim}
+Trạng thái 0 (dọc):      Trạng thái 1 (ngang):
+    [ ]                      [ ][ ][ ][ ]
+    [I]                      [I][I][I][I]
+    [I]                      [ ]
+    [I]                      [ ]
+    [I]
+\end{verbatim}
+
+\subsection{Module Game Logic}
+
+\subsubsection{Di chuyển và va chạm}
+\begin{lstlisting}[caption={Hàm kiểm tra di chuyển}]
+bool canMove(int dx, int dy)
+\end{lstlisting}
+\begin{itemize}
+    \item Kiểm tra block có thể di chuyển theo hướng \texttt{(dx, dy)} không
+    \item Kiểm tra biên và va chạm với các block đã đặt
+\end{itemize}
+
+\subsubsection{Xoay block}
+\begin{lstlisting}[caption={Hàm xoay block sử dụng polymorphism}]
+bool canRotateBlock()
+void rotateBlock()
+\end{lstlisting}
+\begin{itemize}
+    \item \texttt{canRotateBlock()}: Kiểm tra vị trí sau khi xoay có hợp lệ không
+    \item \texttt{rotateBlock()}: Sử dụng \textbf{polymorphism} - gọi \texttt{currentBlock->rotate()}
+    \item Mỗi loại block tự xử lý logic xoay riêng
+\end{itemize}
+
+\subsubsection{Xóa dòng}
+\begin{lstlisting}[caption={Hàm xóa dòng đầy}]
+int removeLine()
+\end{lstlisting}
+\begin{itemize}
+    \item Quét từ dưới lên để tìm dòng đầy
+    \item Xóa dòng và dịch chuyển các dòng phía trên xuống
+    \item Trả về số dòng đã xóa
+\end{itemize}
+
+\subsubsection{Cập nhật tốc độ}
+\begin{lstlisting}[caption={Hàm cập nhật tốc độ game}]
+void updateSpeed(int linesRemoved)
+\end{lstlisting}
+\begin{itemize}
+    \item Cộng dồn \texttt{totalLines}
+    \item Tính \texttt{level = totalLines / LINES\_PER\_LEVEL + 1}
+    \item Giảm \texttt{fallDelay = BASE\_DELAY - (level - 1) * SPEED\_STEP}
+    \item Giới hạn \texttt{fallDelay >= MIN\_DELAY}
+\end{itemize}
+
+\subsection{Module Rendering}
+
+\subsubsection{Vẽ board}
+\begin{lstlisting}[caption={Hàm vẽ màn hình game}]
+void draw()
+\end{lstlisting}
+\begin{itemize}
+    \item Xóa màn hình (\texttt{system("cls")} hoặc \texttt{system("clear")})
+    \item Vẽ border và board
+    \item Hiển thị thông tin: Level, Lines, Delay
+\end{itemize}
+
+\subsubsection{Quản lý block trên board}
+\begin{lstlisting}[caption={Hàm quản lý block trên board}]
+void block2Board()    // Vẽ block lên board
+void boardDelBlock()  // Xóa block khỏi board (để di chuyển)
+\end{lstlisting}
+
+\subsection{Module Input Handling}
+
+\subsubsection{Windows (main.cpp)}
+\begin{itemize}
+    \item Sử dụng \texttt{conio.h}: \texttt{kbhit()}, \texttt{getch()}
+    \item \texttt{Sleep()} từ \texttt{windows.h}
+\end{itemize}
+
+\subsubsection{macOS/Linux (main-macos.cpp)}
+\begin{itemize}
+    \item Tự implement \texttt{kbhit()} và \texttt{getch()} bằng \texttt{termios.h}
+    \item Sử dụng \texttt{this\_thread::sleep\_for()} từ C++11
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Phím} & \textbf{Chức năng} \\
+\hline
+\texttt{a} & Di chuyển trái \\
+\texttt{d} & Di chuyển phải \\
+\texttt{x} & Rơi nhanh \\
+\texttt{w} hoặc \texttt{r} & Xoay block \\
+\texttt{q} & Thoát game \\
+\hline
+\end{tabular}
+\caption{Bảng điều khiển}
+\end{table}
+
+\section{SƠ ĐỒ KHỐI (FLOWCHART)}
+
+\subsection{Sơ đồ tổng quan - Game Loop}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    startstop/.style={rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=red!30},
+    process/.style={rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30},
+    decision/.style={diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30},
+    arrow/.style={->, >=stealth, thick}
+]
+    % Start
+    \node [startstop] (start) {BẮT ĐẦU};
+    
+    % Initialize
+    \node [process, below=of start] (init) {Khởi tạo\\Random seed\\Tạo block đầu\\Khởi tạo bàn chơi};
+    
+    % Game Loop
+    \node [process, below=of init] (loop) {VÒNG LẶP GAME};
+    
+    % Remove block
+    \node [process, below=of loop] (remove) {Xóa block\\khỏi bàn chơi};
+    
+    % Check input
+    \node [decision, below=of remove] (input) {Kiểm tra\\bàn phím?};
+    
+    % Process input
+    \node [process, right=of input] (process) {Xử lý Input\\Di chuyển/Xoay/Thoát};
+    
+    % Can move down
+    \node [decision, below=of input, yshift=-1cm] (move) {Có thể rơi\\xuống?};
+    
+    % Move down
+    \node [process, left=of move] (movedown) {Di chuyển xuống};
+    
+    % Block landed
+    \node [process, right=of move] (landed) {Block chạm đáy\\Khóa block\\Kiểm tra dòng\\Xóa dòng đầy\\Cập nhật tốc độ\\Block mới};
+    
+    % Draw
+    \node [process, below=of move, yshift=-1cm] (draw) {Vẽ block\\lên bàn chơi};
+    
+    % Render
+    \node [process, below=of draw] (render) {Hiển thị màn hình};
+    
+    % Sleep
+    \node [process, below=of render] (sleep) {Tạm dừng\\(fallDelay)};
+    
+    % Arrows
+    \draw [arrow] (start) -- (init);
+    \draw [arrow] (init) -- (loop);
+    \draw [arrow] (loop) -- (remove);
+    \draw [arrow] (remove) -- (input);
+    \draw [arrow] (input) -- node[anchor=south] {Có} (process);
+    \draw [arrow] (process) |- (move);
+    \draw [arrow] (input) -- node[anchor=east] {Không} (move);
+    \draw [arrow] (move) -- node[anchor=south] {Có} (movedown);
+    \draw [arrow] (movedown) |- (draw);
+    \draw [arrow] (move) -- node[anchor=south] {Không} (landed);
+    \draw [arrow] (landed) |- (draw);
+    \draw [arrow] (draw) -- (render);
+    \draw [arrow] (sleep) -- (loop);
+    \draw [arrow] (render) -- (sleep);
+\end{tikzpicture}
+\caption{Sơ đồ Game Loop tổng quan}
+\end{figure}
+
+\subsection{Sơ đồ xử lý xoay block (Polymorphism)}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    startstop/.style={rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=red!30},
+    process/.style={rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30},
+    decision/.style={diamond, minimum width=2.5cm, minimum height=1cm, text centered, draw=black, fill=green!30},
+    arrow/.style={->, >=stealth, thick}
+]
+    % User input
+    \node [startstop] (input) {Người chơi nhấn\\'w' hoặc 'r'};
+    
+    % rotateBlock
+    \node [process, below=of input] (rotate) {rotateBlock()};
+    
+    % Check
+    \node [decision, below=of rotate] (check) {currentBlock\\tồn tại?\\canRotate()?};
+    
+    % Return
+    \node [startstop, left=of check] (return1) {Thoát};
+    
+    % canRotateBlock
+    \node [process, below=of check] (canrot) {canRotateBlock()\\Kiểm tra vị trí\\sau xoay hợp lệ};
+    
+    % Valid?
+    \node [decision, below=of canrot] (valid) {Hợp lệ?};
+    
+    % Return 2
+    \node [startstop, left=of valid] (return2) {Thoát};
+    
+    % Polymorphism
+    \node [process, below=of valid, text width=4cm] (poly) {ĐA HÌNH\\currentBlock->rotate()\\Mỗi loại block có\\logic xoay riêng};
+    
+    % Arrows
+    \draw [arrow] (input) -- (rotate);
+    \draw [arrow] (rotate) -- (check);
+    \draw [arrow] (check) -- node[anchor=south] {Không} (return1);
+    \draw [arrow] (check) -- node[anchor=east] {Có} (canrot);
+    \draw [arrow] (canrot) -- (valid);
+    \draw [arrow] (valid) -- node[anchor=south] {Không} (return2);
+    \draw [arrow] (valid) -- node[anchor=east] {Có} (poly);
+\end{tikzpicture}
+\caption{Sơ đồ xử lý xoay block sử dụng polymorphism}
+\end{figure}
+
+\subsection{Sơ đồ xóa dòng}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    startstop/.style={rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=red!30},
+    process/.style={rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30},
+    decision/.style={diamond, minimum width=2.5cm, minimum height=1cm, text centered, draw=black, fill=green!30},
+    arrow/.style={->, >=stealth, thick}
+]
+    % Start
+    \node [startstop] (start) {removeLine()};
+    
+    % Loop
+    \node [process, below=of start] (loop) {Vòng lặp từ dưới\\lên (i = H-2 đến 1)};
+    
+    % Check full
+    \node [decision, below=of loop] (check) {Dòng i\\đầy?};
+    
+    % Remove
+    \node [process, right=of check, text width=3.5cm] (remove) {removed++\\Dịch chuyển tất cả\\dòng phía trên\\xuống 1\\Xóa dòng trên cùng};
+    
+    % Recheck
+    \node [process, below=of remove] (recheck) {i++ (kiểm tra\\lại dòng i)};
+    
+    % Return
+    \node [startstop, below=of check, yshift=-2cm] (return) {Trả về removed\\(tổng số dòng)};
+    
+    % Arrows
+    \draw [arrow] (start) -- (loop);
+    \draw [arrow] (loop) -- (check);
+    \draw [arrow] (check) -- node[anchor=south] {Có} (remove);
+    \draw [arrow] (remove) -- (recheck);
+    \draw [arrow] (recheck) |- (check);
+    \draw [arrow] (check) -- node[anchor=east] {Không} (return);
+\end{tikzpicture}
+\caption{Sơ đồ thuật toán xóa dòng}
+\end{figure}
+
+\section{SƠ ĐỒ CLASS (CLASS DIAGRAM)}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    class/.style={rectangle, draw=black, fill=blue!20, text width=3.5cm, text centered, minimum height=1cm},
+    derived/.style={rectangle, draw=black, fill=green!20, text width=2.5cm, text centered, minimum height=0.8cm},
+    factory/.style={rectangle, draw=black, fill=yellow!20, text width=3cm, text centered, minimum height=0.8cm},
+    arrow/.style={->, >=stealth, thick}
+]
+    % Base class
+    \node [class] (base) at (0,0) {
+        \textbf{Blocks}\\
+        (Abstract Class)\\
+        \texttt{- shape[4][4]}\\
+        \texttt{- rotationState}\\
+        \texttt{+ getCell()}\\
+        \texttt{+ rotate() = 0}\\
+        \texttt{+ canRotate()}
+    };
+    
+    % Derived classes row 1
+    \node [derived] (iblock) at (-4,-3) {
+        \textbf{IBlock}\\
+        \texttt{+ rotate()}\\
+        (2 states)
+    };
+    
+    \node [derived] (oblock) at (-1.3,-3) {
+        \textbf{OBlock}\\
+        \texttt{+ rotate()}\\
+        (no rot)
+    };
+    
+    \node [derived] (tblock) at (1.3,-3) {
+        \textbf{TBlock}\\
+        \texttt{+ rotate()}\\
+        (4 states)
+    };
+    
+    % Derived classes row 2
+    \node [derived] (sblock) at (-2.5,-5) {
+        \textbf{SBlock}\\
+        \texttt{+ rotate()}\\
+        (2 states)
+    };
+    
+    \node [derived] (zblock) at (0,-5) {
+        \textbf{ZBlock}\\
+        \texttt{+ rotate()}\\
+        (2 states)
+    };
+    
+    \node [derived] (jblock) at (2.5,-5) {
+        \textbf{JBlock}\\
+        \texttt{+ rotate()}\\
+        (4 states)
+    };
+    
+    \node [derived] (lblock) at (0,-7) {
+        \textbf{LBlock}\\
+        \texttt{+ rotate()}\\
+        (4 states)
+    };
+    
+    % Factory
+    \node [factory] (factory) at (5,-3.5) {
+        \textbf{createBlock()}\\
+        (Factory Function)\\
+        \texttt{+ createBlock(type)}\\
+        Returns Blocks*
+    };
+    
+    % Arrows
+    \draw [arrow] (base) -- (iblock);
+    \draw [arrow] (base) -- (oblock);
+    \draw [arrow] (base) -- (tblock);
+    \draw [arrow] (base) -- (sblock);
+    \draw [arrow] (base) -- (zblock);
+    \draw [arrow] (base) -- (jblock);
+    \draw [arrow] (base) -- (lblock);
+    \draw [arrow, dashed] (factory) -- (base);
+\end{tikzpicture}
+\caption{Sơ đồ class với inheritance và polymorphism}
+\end{figure}
+
+\section{THUẬT TOÁN CHÍNH}
+
+\subsection{Thuật toán xoay block (Rotation Algorithm)}
+
+\textbf{Cho các block xoay 90° (T, S, Z, J, L)}:
+\begin{equation}
+\text{new}[i][j] = \text{old}[3-j][i]
+\end{equation}
+
+Ví dụ với ma trận 4x4:
+\begin{verbatim}
+[0][0] [0][1] [0][2] [0][3]      [3][0] [2][0] [1][0] [0][0]
+[1][0] [1][1] [1][2] [1][3]  →   [3][1] [2][1] [1][1] [0][1]
+[2][0] [2][1] [2][2] [2][3]      [3][2] [2][2] [1][2] [0][2]
+[3][0] [3][1] [3][2] [3][3]      [3][3] [2][3] [1][3] [0][3]
+\end{verbatim}
+
+\textbf{Cho IBlock (đặc biệt)}:
+\begin{itemize}
+    \item Chỉ có 2 trạng thái: dọc $\leftrightarrow$ ngang
+    \item Logic riêng: xóa và vẽ lại shape
+\end{itemize}
+
+\subsection{Thuật toán kiểm tra va chạm}
+
+\begin{lstlisting}[caption={Pseudocode kiểm tra va chạm}]
+bool canMove(int dx, int dy) {
+    for mỗi ô (i, j) trong shape[4][4]:
+        if shape[i][j] != ' ':
+            xt = x + j + dx
+            yt = y + i + dy
+            if (xt < 1 || xt >= W-1 || yt >= H-1):
+                return false  // Vượt biên
+            if (board[yt][xt] != ' '):
+                return false  // Va chạm với block khác
+    return true
+}
+\end{lstlisting}
+
+\subsection{Thuật toán xóa dòng}
+
+\begin{lstlisting}[caption={Pseudocode xóa dòng}]
+int removeLine() {
+    removed = 0
+    for i từ H-2 xuống 1:
+        if dòng i đầy:
+            removed++
+            // Dịch chuyển tất cả dòng phía trên xuống
+            for r từ i xuống 2:
+                board[r] = board[r-1]
+            // Xóa dòng trên cùng
+            board[1] = ' ' (toàn bộ)
+            i++  // Kiểm tra lại dòng i (vì đã dịch xuống)
+    return removed
+}
+\end{lstlisting}
+
+\subsection{Thuật toán cập nhật tốc độ}
+
+\begin{lstlisting}[caption={Pseudocode cập nhật tốc độ}]
+void updateSpeed(int linesRemoved) {
+    totalLines += linesRemoved
+    level = totalLines / LINES_PER_LEVEL + 1
+    fallDelay = BASE_DELAY - (level - 1) * SPEED_STEP
+    if (fallDelay < MIN_DELAY):
+        fallDelay = MIN_DELAY
+}
+\end{lstlisting}
+
+\textbf{Ví dụ}:
+\begin{itemize}
+    \item Level 1: \texttt{fallDelay = 1000ms}
+    \item Level 2: \texttt{fallDelay = 960ms} (sau 5 dòng)
+    \item Level 3: \texttt{fallDelay = 920ms} (sau 10 dòng)
+    \item \ldots
+    \item Level 24: \texttt{fallDelay = 100ms} (tối đa)
+\end{itemize}
+
+\section{TÍNH NĂNG ĐẶC BIỆT}
+
+\subsection{Polymorphism (Đa hình)}
+
+\textbf{Ưu điểm}:
+\begin{itemize}
+    \item Mỗi loại block tự quản lý logic xoay riêng
+    \item Dễ mở rộng: thêm block mới chỉ cần tạo class mới
+    \item Code sạch, dễ bảo trì
+\end{itemize}
+
+\textbf{Ví dụ sử dụng}:
+\begin{lstlisting}[caption={Ví dụ sử dụng polymorphism}]
+Blocks* block = createBlock(2);  // Tạo TBlock
+block->rotate();  // Gọi rotate() của TBlock, không phải Blocks
+\end{lstlisting}
+
+\subsection{Factory Pattern}
+
+Hàm \texttt{createBlock()} đóng vai trò Factory:
+\begin{itemize}
+    \item Tạo object dựa trên type
+    \item Ẩn chi tiết khởi tạo
+    \item Dễ thêm block mới
+\end{itemize}
+
+\subsection{Cross-platform Support}
+
+\begin{itemize}
+    \item \textbf{Windows}: \texttt{main.cpp} với \texttt{conio.h}
+    \item \textbf{macOS/Linux}: \texttt{main-macos.cpp} với \texttt{termios.h}
+    \item Cùng logic game, chỉ khác input/output
+\end{itemize}
+
+\section{ĐIỂM MẠNH VÀ HẠN CHẾ}
+
+\subsection{Điểm mạnh}
+\begin{itemize}
+    \item[$\checkmark$] Sử dụng OOP với polymorphism
+    \item[$\checkmark$] Code được tổ chức rõ ràng (tách file)
+    \item[$\checkmark$] Hỗ trợ đa nền tảng
+    \item[$\checkmark$] Dễ mở rộng (thêm block mới)
+    \item[$\checkmark$] Logic game hoàn chỉnh (di chuyển, xoay, xóa dòng, tăng tốc)
+\end{itemize}
+
+\subsection{Hạn chế và cải tiến có thể}
+\begin{itemize}
+    \item[$\times$] Chưa có hệ thống điểm số
+    \item[$\times$] Chưa có preview block tiếp theo
+    \item[$\times$] Chưa có hold block
+    \item[$\times$] Chưa có game over detection
+    \item[$\times$] Chưa có high score
+    \item[$\times$] Chưa có âm thanh
+\end{itemize}
+
+\section{HƯỚNG DẪN BIÊN DỊCH VÀ CHẠY}
+
+\subsection{Windows}
+\begin{lstlisting}[language=bash, caption={Biên dịch trên Windows}]
+g++ main.cpp -o tetris.exe
+./tetris.exe
+\end{lstlisting}
+
+\subsection{macOS/Linux}
+\begin{lstlisting}[language=bash, caption={Biên dịch trên macOS/Linux}]
+g++ main-macos.cpp -o tetris -std=c++11
+./tetris
+\end{lstlisting}
+
+\subsection{Yêu cầu}
+\begin{itemize}
+    \item Compiler hỗ trợ C++11 trở lên
+    \item Windows: cần \texttt{conio.h} và \texttt{windows.h}
+    \item macOS/Linux: cần \texttt{termios.h} và \texttt{unistd.h}
+\end{itemize}
+
+\section{KẾT LUẬN}
+
+Trò chơi Tetris này được xây dựng với:
+\begin{itemize}
+    \item \textbf{Kiến trúc OOP} sử dụng polymorphism
+    \item \textbf{Design Pattern}: Factory Pattern
+    \item \textbf{Cấu trúc code} rõ ràng, dễ bảo trì
+    \item \textbf{Cross-platform} support
+\end{itemize}
+
+Code minh họa tốt các khái niệm:
+\begin{itemize}
+    \item Inheritance (Kế thừa)
+    \item Polymorphism (Đa hình)
+    \item Virtual functions
+    \item Factory Pattern
+    \item Memory management (new/delete)
+\end{itemize}
+
+\vspace{1cm}
+
+\begin{center}
+\textbf{Tác giả}: SS004-Tetris-Game Team\\
+\textbf{Ngày}: \today\\
+\textbf{Phiên bản}: 1.0
+\end{center}
+
+\end{document}
+
