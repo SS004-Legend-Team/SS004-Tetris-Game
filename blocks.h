@@ -84,11 +84,37 @@ public:
     }
 };
 
+// T-Block: có 4 trạng thái xoay
+class TBlock : public Blocks {
+public:
+    TBlock() {
+        shape[1][1] = 'T';
+        shape[2][0] = 'T';
+        shape[2][1] = 'T';
+        shape[2][2] = 'T';
+        rotationState = 0;
+    }
+    
+    void rotate() override {
+        char temp[4][4];
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                temp[i][j] = shape[3 - j][i];
+        
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                shape[i][j] = temp[i][j];
+        
+        rotationState = (rotationState + 1) % 4;
+    }
+};
+
 // Hàm factory để tạo block mới dựa trên type
 inline Blocks* createBlock(int type) {
     switch (type) {
         case 0: return new IBlock();
         case 1: return new OBlock();
+        case 2: return new TBlock();
         
         default: return new IBlock();
     }
