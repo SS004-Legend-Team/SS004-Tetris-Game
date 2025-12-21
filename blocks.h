@@ -109,13 +109,39 @@ public:
     }
 };
 
+// S-Block: có 2 trạng thái xoay
+class SBlock : public Blocks {
+public:
+    SBlock() {
+        shape[1][1] = 'S';
+        shape[1][2] = 'S';
+        shape[2][0] = 'S';
+        shape[2][1] = 'S';
+        rotationState = 0;
+    }
+    
+    void rotate() override {
+        char temp[4][4];
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                temp[i][j] = shape[3 - j][i];
+        
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                shape[i][j] = temp[i][j];
+        
+        rotationState = (rotationState + 1) % 2;
+    }
+};
+
 // Hàm factory để tạo block mới dựa trên type
 inline Blocks* createBlock(int type) {
     switch (type) {
         case 0: return new IBlock();
         case 1: return new OBlock();
         case 2: return new TBlock();
-        
+        case 3: return new SBlock();
+       
         default: return new IBlock();
     }
 }
