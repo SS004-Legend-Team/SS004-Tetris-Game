@@ -29,20 +29,26 @@ Dự án game Tetris được phát triển bằng C++ với giao diện console
 ### Đã triển khai
 - ✅ 7 loại khối Tetrominoes (I, O, T, S, Z, J, L)
 - ✅ Di chuyển khối trái/phải
-- ✅ Khối tự động rơi xuống
+- ✅ Khối tự động rơi xuống với tốc độ tăng dần
 - ✅ Kiểm tra va chạm và biên
 - ✅ Vẽ board game với khung viền
-- ✅ Hỗ trợ đa nền tảng (macOS, Linux)
-- ✅ Input không đồng bộ (non-blocking input)
+- ✅ Hỗ trợ đa nền tảng (macOS, Linux, Windows)
+- ✅ Input không đồng bộ (non-blocking input) với tối ưu phản hồi
+- ✅ **Xoay khối** (phím `w` hoặc `r`) - sử dụng polymorphism
+- ✅ **Xóa hàng khi đầy** - tự động xóa và rơi các khối phía trên
+- ✅ **Hệ thống Level** - tăng level mỗi 5 dòng xóa
+- ✅ **Tăng tốc độ** - tốc độ rơi tăng dần theo level
+- ✅ **Hard Drop** (phím `s`) - rơi nhanh xuống vị trí thấp nhất
+- ✅ **Game Over detection** - phát hiện khi board đầy
+- ✅ **Màn hình Game Over** - hiển thị level và tổng số dòng đã xóa
+- ✅ **Object-Oriented Design** - sử dụng polymorphism với class Blocks
 
 ### Đang phát triển
-- 🔄 Xóa hàng khi đầy (hiện tại đang TODO)
-- 🔄 Xoay khối
-- 🔄 Hệ thống điểm số
-- 🔄 Cấp độ và tăng tốc độ
-- 🔄 Game Over detection
 - 🔄 Hiển thị khối tiếp theo (Next Piece)
-- 🔄 Lưu điểm cao nhất
+- 🔄 Hệ thống điểm số chi tiết
+- 🔄 Lưu điểm cao nhất (High Score)
+- 🔄 Animation khi xóa hàng
+- 🔄 Màu sắc cho các khối
 
 ## 💻 Yêu cầu hệ thống
 
@@ -59,15 +65,25 @@ Dự án game Tetris được phát triển bằng C++ với giao diện console
 
 ### Cách 1: Biên dịch trực tiếp
 
+**Cho macOS/Linux:**
 ```bash
 # Di chuyển vào thư mục dự án
 cd SS004-Tetris-Game
 
 # Biên dịch
-g++ -o tetris main.cpp -std=c++11
+g++ -o tetris main-macos.cpp -std=c++11
 
 # Hoặc với Clang
-clang++ -o tetris main.cpp -std=c++11
+clang++ -o tetris main-macos.cpp -std=c++11
+```
+
+**Cho Windows:**
+```bash
+# Biên dịch với MinGW hoặc MSVC
+g++ -o tetris.exe main.cpp -std=c++11
+
+# Hoặc với MSVC
+cl main.cpp /EHsc /Fe:tetris.exe
 ```
 
 ### Cách 2: Sử dụng Makefile (nếu có)
@@ -103,19 +119,27 @@ Sau khi biên dịch thành công, chạy game bằng lệnh:
 |------|-----------|
 | `a` | Di chuyển khối sang trái |
 | `d` | Di chuyển khối sang phải |
-| `s` | Rơi nhanh (hard drop) |
+| `x` | Rơi xuống 1 ô (soft drop) |
+| `s` | Rơi nhanh xuống vị trí thấp nhất (hard drop) |
+| `w` hoặc `r` | Xoay khối (90 độ theo chiều kim đồng hồ) |
 | `q` | Thoát game |
 
-> ⚠️ **Lưu ý**: Hiện tại chưa có tính năng xoay khối. Tính năng này đang được phát triển.
+> 💡 **Mẹo**: Sử dụng `s` để rơi nhanh và `w`/`r` để xoay khối vào vị trí tối ưu!
 
 ## 📁 Cấu trúc dự án
 
 ```
 SS004-Tetris-Game/
-├── main.cpp              # File source code chính
-├── main-window.cpp       # File source code cho phiên bản GUI (nếu có)
+├── main.cpp              # File source code cho Windows
+├── main-macos.cpp        # File source code cho macOS/Linux
+├── Blocks.h              # Header file chứa class Blocks và các derived classes
+├── blocks.h              # Alias cho Blocks.h (tương thích)
 ├── README.md            # File này - hướng dẫn kỹ thuật
 ├── INTRODUCE.md         # Hướng dẫn chơi game và chiến lược
+├── DOCUMENTATION.tex     # Tài liệu kỹ thuật LaTeX
+├── DOCUMENTATION.md      # Tài liệu kỹ thuật Markdown
+├── TECHNICAL_DOCUMENTATION.tex  # Tài liệu kỹ thuật chi tiết (LaTeX)
+├── TECHNICAL_DOCUMENTATION.md   # Tài liệu kỹ thuật chi tiết (Markdown)
 └── tetris               # File executable (sau khi biên dịch)
 ```
 
@@ -125,29 +149,69 @@ SS004-Tetris-Game/
 
 #### 1. **Biến toàn cục**
 ```cpp
-char board[H][W]     // Board game 20x15
-int x, y             // Vị trí hiện tại của khối
-int b                // Chỉ số khối hiện tại
-char blocks[][4][4]  // Mảng chứa các khối Tetrominoes
+char board[H][W]              // Board game 20x15
+int x, y                      // Vị trí hiện tại của khối
+Blocks* currentBlock          // Con trỏ đến block hiện tại (polymorphism)
+int level                     // Level hiện tại
+int totalLines                // Tổng số dòng đã xóa
+int fallDelay                 // Tốc độ rơi hiện tại (ms)
 ```
 
 #### 2. **Hàm chính**
 
+**Input & Control:**
 - `kbhit()`: Kiểm tra xem có phím được nhấn không (non-blocking)
 - `getch()`: Lấy ký tự từ bàn phím (không cần Enter)
+
+**Game Logic:**
 - `canMove(dx, dy)`: Kiểm tra khối có thể di chuyển không
 - `block2Board()`: Vẽ khối lên board
 - `boardDelBlock()`: Xóa khối khỏi board
 - `initBoard()`: Khởi tạo board với khung viền
-- `draw()`: Vẽ board ra màn hình
-- `removeLine()`: Xóa hàng đầy (đang TODO)
+- `removeLine()`: Xóa hàng đầy và trả về số dòng đã xóa
+- `updateSpeed(linesRemoved)`: Cập nhật level và tốc độ rơi
+- `canRotateBlock()`: Kiểm tra có thể xoay block không
+- `rotateBlock()`: Xoay block sử dụng polymorphism
+- `hardDrop()`: Rơi nhanh block xuống vị trí thấp nhất
+- `isGameOver()`: Kiểm tra điều kiện game over
+- `drawGameOver()`: Hiển thị màn hình game over
 
-#### 3. **Cross-platform Support**
+**Rendering:**
+- `draw()`: Vẽ board ra màn hình với thông tin level, lines, delay
 
-Code sử dụng các thư viện POSIX để đảm bảo tương thích:
+#### 3. **Object-Oriented Design**
+
+Game sử dụng **polymorphism** với class `Blocks`:
+
+```cpp
+// Base class
+class Blocks {
+    virtual void rotate() = 0;  // Pure virtual - mỗi block xoay khác nhau
+    virtual bool canRotate() const;
+    char getCell(int i, int j) const;
+};
+
+// Derived classes
+class IBlock : public Blocks { ... };  // 2 trạng thái xoay
+class OBlock : public Blocks { ... };  // Không xoay
+class TBlock : public Blocks { ... };  // 4 trạng thái xoay
+// ... và các block khác
+```
+
+**Factory Pattern:**
+- `createBlock(int type)`: Tạo instance của block type tương ứng
+
+#### 4. **Cross-platform Support**
+
+**macOS/Linux (`main-macos.cpp`):**
 - `<termios.h>`: Điều khiển terminal
 - `<unistd.h>`: POSIX system calls
 - `<fcntl.h>`: File control
+- `<thread>` và `<chrono>`: Sleep và timing
+
+**Windows (`main.cpp`):**
+- `<conio.h>`: Console I/O (`_kbhit()`, `_getch()`)
+- `<windows.h>`: Windows API (`Sleep()`)
 
 ### Các khối Tetrominoes
 
@@ -168,53 +232,77 @@ Game hỗ trợ 7 loại khối chuẩn của Tetris:
 1. **Hệ thống Board**
    - Board 20x15 với khung viền
    - Vẽ và cập nhật board real-time
+   - Hiển thị level, tổng số dòng, và tốc độ rơi
 
-2. **Hệ thống Khối**
-   - 7 loại khối Tetrominoes
-   - Khối tự động rơi xuống
-   - Random khối mới
+2. **Hệ thống Khối (Polymorphism)**
+   - 7 loại khối Tetrominoes (I, O, T, S, Z, J, L)
+   - Sử dụng class `Blocks` với virtual methods
+   - Mỗi block có logic xoay riêng (I-block: 2 trạng thái, O-block: không xoay, các block khác: 4 trạng thái)
+   - Factory pattern để tạo block: `createBlock(int type)`
+   - Khối tự động rơi xuống với tốc độ tăng dần
 
-3. **Di chuyển**
-   - Di chuyển trái/phải
+3. **Di chuyển và Xoay**
+   - Di chuyển trái/phải (`a`/`d`)
+   - Soft drop (`x`) - rơi xuống 1 ô
+   - Hard drop (`s`) - rơi nhanh xuống vị trí thấp nhất
+   - Xoay khối (`w`/`r`) - sử dụng polymorphism
    - Kiểm tra va chạm với biên và khối khác
-   - Hard drop (rơi nhanh)
+   - Kiểm tra va chạm khi xoay
 
-4. **Input System**
+4. **Hệ thống Level và Tốc độ**
+   - Level tăng mỗi 5 dòng xóa (`LINES_PER_LEVEL = 5`)
+   - Tốc độ rơi ban đầu: 1000ms (`BASE_DELAY`)
+   - Tốc độ rơi giảm 40ms mỗi level (`SPEED_STEP`)
+   - Tốc độ tối thiểu: 100ms (`MIN_DELAY`)
+
+5. **Xóa Hàng**
+   - Tự động phát hiện hàng đầy
+   - Xóa hàng và rơi các khối phía trên xuống
+   - Cập nhật level và tốc độ sau khi xóa
+
+6. **Game Over**
+   - Phát hiện khi block mới không thể spawn
+   - Phát hiện khi board đầy đến hàng đầu tiên
+   - Hiển thị màn hình game over với level và tổng số dòng
+   - Đợi người dùng nhấn phím trước khi thoát
+
+7. **Input System**
    - Non-blocking keyboard input
-   - Cross-platform support (macOS/Linux)
+   - Tối ưu phản hồi: kiểm tra input mỗi 50ms (`INPUT_CHECK_INTERVAL`)
+   - Cross-platform support (macOS/Linux/Windows)
 
-5. **Rendering**
+8. **Rendering**
    - Clear screen và vẽ lại board
    - Hiển thị khối đang rơi
+   - Hiển thị thông tin game (level, lines, delay)
 
 ## 🔨 Tính năng đang phát triển
 
 ### 🔄 Cần hoàn thiện
 
-1. **Xóa hàng** (`removeLine()`)
-   - Phát hiện hàng đầy
-   - Xóa hàng và rơi các khối phía trên xuống
-   - Animation khi xóa hàng
-
-2. **Xoay khối**
-   - Implement rotation logic
-   - Kiểm tra va chạm khi xoay
-   - Wall kick (nếu cần)
-
-3. **Hệ thống điểm số**
-   - Tính điểm khi xóa hàng
+1. **Hệ thống điểm số chi tiết**
+   - Tính điểm dựa trên số dòng xóa (1 line = 100, 2 lines = 300, 3 lines = 500, 4 lines = 800)
+   - Bonus điểm cho hard drop
    - Hiển thị điểm trên màn hình
-   - Lưu điểm cao nhất
+   - Lưu điểm cao nhất (High Score)
 
-4. **Game Over**
-   - Phát hiện khi board đầy
-   - Hiển thị màn hình Game Over
-   - Option chơi lại
+2. **Cải thiện UI/UX**
+   - Hiển thị Next Piece (khối tiếp theo)
+   - Màu sắc cho các khối (ANSI colors hoặc Windows colors)
+   - Animation khi xóa hàng
+   - Hiển thị điểm số chi tiết
 
-5. **Cải thiện UI**
-   - Hiển thị Next Piece
-   - Hiển thị điểm số, cấp độ
-   - Hiển thị số hàng đã xóa
+3. **Tính năng nâng cao**
+   - Wall kick khi xoay (nếu block không thể xoay ở vị trí hiện tại, thử di chuyển sang trái/phải)
+   - Hold piece (giữ khối để dùng sau)
+   - Ghost piece (hiển thị vị trí block sẽ rơi đến)
+   - Sound effects
+   - Pause game
+
+4. **Tối ưu hóa**
+   - Tối ưu rendering performance
+   - Giảm memory usage
+   - Cải thiện input handling
 
 ## 🐛 Troubleshooting
 
@@ -247,13 +335,17 @@ Mọi đóng góp đều được chào đón! Để đóng góp:
 
 ### Các tính năng cần đóng góp
 
-- [ ] Hoàn thiện hàm `removeLine()`
-- [ ] Cải thiện UI/UX (đổi giao diện viền và khối)
-- [ ] Tính năng xoay khối
-- [ ] Thêm hệ thống điểm số
-- [ ] Thêm Game Over screen
+- [x] Hoàn thiện hàm `removeLine()` ✅
+- [x] Tính năng xoay khối với polymorphism ✅
+- [x] Thêm Game Over screen ✅
+- [x] Hệ thống level và tăng tốc độ ✅
+- [ ] Thêm hệ thống điểm số chi tiết
+- [ ] Cải thiện UI/UX (màu sắc, animation)
+- [ ] Hiển thị Next Piece
 - [ ] Thêm âm thanh
-- [ ] Thêm màu sắc cho các khối
+- [ ] Wall kick khi xoay
+- [ ] Hold piece
+- [ ] Ghost piece
 - [ ] Tối ưu hóa performance
 
 ## 📚 Tài liệu tham khảo
@@ -279,7 +371,10 @@ Dự án này được phát triển cho mục đích giáo dục.
 
 Để biết thêm về:
 - **Cách chơi và chiến lược**: Xem [INTRODUCE.md](./INTRODUCE.md)
-- **Cấu trúc code**: Xem comments trong `main.cpp`
+- **Cấu trúc code**: Xem comments trong `main-macos.cpp` hoặc `main.cpp`
+- **Tài liệu kỹ thuật chi tiết**: Xem [TECHNICAL_DOCUMENTATION.md](./TECHNICAL_DOCUMENTATION.md) hoặc [TECHNICAL_DOCUMENTATION.tex](./TECHNICAL_DOCUMENTATION.tex)
+- **Tài liệu dự án đầy đủ**: Xem [DOCUMENTATION.md](./DOCUMENTATION.md) hoặc [DOCUMENTATION.tex](./DOCUMENTATION.tex)
+- **Kiến trúc OOP**: Xem file [Blocks.h](./Blocks.h) để hiểu về polymorphism và design pattern
 
 ---
 
