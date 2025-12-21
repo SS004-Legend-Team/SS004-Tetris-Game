@@ -65,11 +65,31 @@ public:
     }
 };
 
+// O-Block: không xoay
+class OBlock : public Blocks {
+public:
+    OBlock() {
+        shape[1][1] = 'O';
+        shape[1][2] = 'O';
+        shape[2][1] = 'O';
+        shape[2][2] = 'O';
+    }
+    
+    void rotate() override {
+        // O-block không xoay, giữ nguyên
+    }
+    
+    bool canRotate() const override {
+        return false;
+    }
+};
+
 // Hàm factory để tạo block mới dựa trên type
 inline Blocks* createBlock(int type) {
     switch (type) {
         case 0: return new IBlock();
-       
+        case 1: return new OBlock();
+        
         default: return new IBlock();
     }
 }
