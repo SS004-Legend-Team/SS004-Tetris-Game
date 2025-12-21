@@ -18,6 +18,7 @@ using namespace std;
 #define LINES_PER_LEVEL 5
 #define CELL_EMPTY "  "
 #define CELL_BLOCK "[]"
+#define INPUT_CHECK_INTERVAL 50  // Kiểm tra input mỗi 50ms
 
 char board[H][W] = {};
 
@@ -230,41 +231,195 @@ void rotateBlock() {
     }
 }
 
+// Forward declarations
+bool isGameOver();
+void drawGameOver();
+
+// Rơi nhanh block xuống vị trí thấp nhất có thể
+void hardDrop() {
+    if (!currentBlock) return;
+    
+    boardDelBlock();  // Xóa block khỏi board trước khi tính toán
+    
+    // Tìm vị trí thấp nhất mà block có thể rơi đến
+    while (canMove(0, 1)) {
+        y++;
+    }
+    
+    // Block đã ở vị trí thấp nhất, khóa block ngay lập tức
+    block2Board();
+    const int linesRemoved = removeLine();
+    updateSpeed(linesRemoved);
+    x = 5;
+    y = 0;
+    delete currentBlock;
+    currentBlock = createBlock(rand() % 7);
+    
+    // Kiểm tra Game Over sau khi tạo block mới
+    if (isGameOver()) {
+        block2Board();
+        draw();
+        drawGameOver();
+    }
+}
+
+// Kiểm tra xem game có kết thúc không (block chạm đường trên)
+bool isGameOver() {
+    if (!currentBlock) return false;
+    
+    // Block mới được tạo ở y = 0
+    // Kiểm tra xem block có chạm vào block đã có trên board không
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (currentBlock->getCell(i, j) != ' ') {
+                int xt = x + j;
+                int yt = y + i;  // y = 0, nên yt = i (0, 1, 2, 3)
+                
+                // Kiểm tra biên ngang
+                if (xt < 1 || xt >= W - 1) continue;
+                
+                // Nếu block có phần ở hàng chơi (yt >= 1) và chạm vào block đã có
+                if (yt >= 1 && yt < H - 1) {
+                    if (board[yt][xt] != ' ') {
+                        return true;  // Chạm vào block đã có
+                    }
+                }
+                
+                // Nếu block ở hàng đầu tiên (yt = 1) và board đã có block ở đó
+                // thì block mới không thể xuất hiện -> game over
+                if (yt == 1 && board[1][xt] != ' ') {
+                    return true;
+                }
+            }
+        }
+    }
+    
+    // Kiểm tra thêm: nếu block không thể di chuyển xuống ngay từ đầu
+    // (tức là board đã đầy đến hàng đầu tiên)
+    if (y == 0 && !canMove(0, 1)) {
+        // Kiểm tra xem có block nào ở hàng đầu tiên (y = 1) không
+        for (int j = 1; j < W - 1; j++) {
+            if (board[1][j] != ' ') {
+                return true;  // Board đã đầy đến hàng đầu tiên
+            }
+        }
+    }
+    
+    return false;
+}
+
+// Hiển thị màn hình Game Over
+void drawGameOver() {
+    system("clear");
+    
+    const int playW = W - 2;
+    const int playH = H - 1;
+    
+    // Vẽ board với block cuối cùng
+    cout << "+" << std::string(playW * 2 + 2, '-') << "+\n";
+    
+    for (int i = 0; i < playH; i++) {
+        cout << "|+";
+        for (int j = 1; j <= W - 2; j++) {
+            if (board[i][j] == ' ')
+                cout << CELL_EMPTY;
+            else
+                cout << CELL_BLOCK;
+        }
+        cout << "+|\n";
+    }
+    
+    cout << "+" << std::string(playW * 2 + 2, '-') << "+\n";
+    
+    // Hiển thị Game Over
+    cout << "\n";
+    cout << "  ============================\n";
+    cout << "        G A M E   O V E R\n";
+    cout << "  ============================\n";
+    cout << "\n";
+    cout << "  Final Level: " << level << "\n";
+    cout << "  Total Lines: " << totalLines << "\n";
+    cout << "\n";
+    cout << "  Press any key to exit...\n";
+    
+    // Đợi người dùng nhấn phím
+    if (kbhit()) {
+        getch();
+    }
+}
+
 int main() {
   srand(time(0));
   x = 5;
   y = 0;
   currentBlock = createBlock(rand() % 7);
   initBoard();
+  
+  int elapsedTime = 0;  // Thời gian đã trôi qua trong chu kỳ hiện tại
+  
   while (1) {
     boardDelBlock();
+    
+    // Kiểm tra input liên tục với delay ngắn để phản hồi nhanh
+    int remainingTime = fallDelay - elapsedTime;
+    int sleepTime = (remainingTime > INPUT_CHECK_INTERVAL) ? INPUT_CHECK_INTERVAL : (remainingTime > 0 ? remainingTime : 0);
+    
     if (kbhit()) {
       char c = getch();
-      if (c == 'a' && canMove(-1, 0))
+      if (c == 'a' && canMove(-1, 0)) {
         x--;
-      if (c == 'd' && canMove(1, 0))
+      }
+      if (c == 'd' && canMove(1, 0)) {
         x++;
-      if (c == 'x' && canMove(0, 1))
+      }
+      if (c == 'x' && canMove(0, 1)) {
         y++;
-      if (c == 'w' || c == 'r')  // Thêm phím xoay
+      }
+      if (c == 's') {  // Rơi nhanh (hard drop)
+        hardDrop();
+      }
+      if (c == 'w' || c == 'r') {  // Thêm phím xoay
         rotateBlock();
+      }
       if (c == 'q')
         break;
-    }
-    if (canMove(0, 1))
-      y++;
-    else {
+      
+      // Vẽ lại sau khi xử lý input
       block2Board();
-      const int linesRemoved = removeLine();
-      updateSpeed(linesRemoved);
-      x = 5;
-      y = 0;
-      delete currentBlock;  // Giải phóng block cũ
-      currentBlock = createBlock(rand() % 7);
+      draw();
     }
-    block2Board();
-    draw();
-    this_thread::sleep_for(chrono::milliseconds(fallDelay));
+    
+    // Cập nhật thời gian đã trôi qua
+    elapsedTime += sleepTime;
+    this_thread::sleep_for(chrono::milliseconds(sleepTime));
+    
+    // Chỉ cho block rơi xuống khi đã hết thời gian fallDelay
+    if (elapsedTime >= fallDelay) {
+      elapsedTime = 0;  // Reset thời gian cho chu kỳ mới
+      
+      boardDelBlock();  // Đảm bảo xóa block trước khi kiểm tra
+      if (canMove(0, 1))
+        y++;
+      else {
+        block2Board();
+        const int linesRemoved = removeLine();
+        updateSpeed(linesRemoved);
+        x = 5;
+        y = 0;
+        delete currentBlock;  // Giải phóng block cũ
+        currentBlock = createBlock(rand() % 7);
+        
+        // Kiểm tra Game Over sau khi tạo block mới
+        if (isGameOver()) {
+          block2Board();
+          draw();
+          drawGameOver();
+          break;
+        }
+      }
+      block2Board();
+      draw();
+    }
   }
   delete currentBlock;  // Giải phóng trước khi kết thúc
   return 0;
